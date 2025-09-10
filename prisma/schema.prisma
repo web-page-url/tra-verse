@@ -1,0 +1,107 @@
+// Prisma schema for Tra Verse Travel Planning App
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String?  @unique
+  name              String?
+  preferences       Json?    // UserPreferences object
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Relations
+  trip_requests     TripRequest[]
+  trips             Trip[]
+
+  @@map("users")
+}
+
+model TripRequest {
+  id                String     @id
+  user_id           String?
+  input_json        Json       // TripRequest object
+  status            JobStatus  @default(queued)
+  progress          Float?     @default(0)
+  error_message     String?
+  estimated_completion DateTime?
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+
+  // Relations
+  user              User?      @relation(fields: [user_id], references: [id])
+  trip              Trip?
+
+  @@map("trip_requests")
+}
+
+model Trip {
+  id                String     @id @default(cuid())
+  trip_request_id   String     @unique
+  result_json       Json       // TripResponse object
+  estimated_cost    Json       // BudgetRange object
+  user_id           String?
+  created_at        DateTime   @default(now())
+
+  // Relations
+  trip_request      TripRequest @relation(fields: [trip_request_id], references: [id])
+  user              User?       @relation(fields: [user_id], references: [id])
+  bookings          Booking[]
+
+  @@map("trips")
+}
+
+model Booking {
+  id                String     @id @default(cuid())
+  trip_id           String
+  provider          String     // e.g., "booking.com", "agoda", "expedia"
+  provider_payload  Json       // Provider-specific booking data
+  status            BookingStatus @default(pending)
+  created_at        DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+
+  // Relations
+  trip              Trip       @relation(fields: [trip_id], references: [id])
+
+  @@map("bookings")
+}
+
+// Enums
+enum JobStatus {
+  queued
+  processing
+  completed
+  failed
+  retrying
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+  refunded
+}
+
+// Indexes for performance
+index on TripRequest(status)
+index on TripRequest(created_at)
+index on Trip(user_id)
+index on Trip(created_at)
+index on Booking(trip_id)
+index on Booking(status)
+
+// Views for analytics (optional)
+view TripStats {
+  total_trips      BigInt
+  completed_trips  BigInt
+  avg_cost         Float?
+  popular_locations String[]
+}
