@@ -104,7 +104,13 @@ export interface TimeBlock {
     lng: number;
   };
   booking_required?: boolean;
-  alternatives?: TimeBlock[];
+  alternatives?: TimeBlockAlternative[];
+}
+
+export interface TimeBlockAlternative {
+  title: string;
+  location: string;
+  cost?: number;
 }
 
 export interface WeatherData {
@@ -152,15 +158,6 @@ export interface DBTrip {
   user_id?: string;
 }
 
-export interface DBBooking {
-  id: string;
-  trip_id: string;
-  provider: string;
-  provider_payload: any;
-  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
-  created_at: Date;
-}
-
 // API Response Types
 export interface APIResponse<T = any> {
   success: boolean;
@@ -193,12 +190,6 @@ export interface OnboardingFormData {
   dietary_restrictions?: string[];
 }
 
-export interface TripRegenerationData {
-  trip_id: string;
-  updates: Partial<TripRequest>;
-  regenerate_reason?: string;
-}
-
 // Component Props Types
 export interface TripCardProps {
   trip: TripResponse;
@@ -220,12 +211,6 @@ export interface TimeBlockProps {
   onSwap?: (block: TimeBlock) => void;
 }
 
-export interface MapProps {
-  trip: TripResponse;
-  selectedDay?: number;
-  onMarkerClick?: (location: string) => void;
-}
-
 // Error Types
 export interface AppError {
   code: string;
@@ -240,29 +225,3 @@ export interface ValidationResult {
   errors: string[];
   warnings?: string[];
 }
-
-// Configuration Types
-export interface AppConfig {
-  gemini: {
-    apiKey: string;
-    model: string;
-    temperature: number;
-    maxRetries: number;
-  };
-  mapbox: {
-    accessToken: string;
-  };
-  database: {
-    url: string;
-  };
-  redis: {
-    url: string;
-  };
-}
-
-// Utility Types
-export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};

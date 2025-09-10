@@ -68,8 +68,8 @@ export const TimeBlockSchema = z.object({
   }).optional(),
   booking_required: z.boolean().optional(),
   alternatives: z.array(z.object({
-    title: z.string(),
-    location: z.string(),
+    title: z.string().min(1),
+    location: z.string().min(1),
     cost: z.number().optional()
   })).optional()
 });
@@ -117,22 +117,6 @@ export const TripResponseSchema = z.object({
   }).optional()
 });
 
-// Form validation schemas
-export const OnboardingFormSchema = z.object({
-  location: z.string().min(2),
-  startDate: z.date(),
-  endDate: z.date(),
-  numPeople: z.number().int().positive().max(20),
-  budget: BudgetRangeSchema,
-  travelStyle: z.enum(['adventure', 'relaxed', 'family', 'romantic', 'cultural', 'luxury']),
-  interests: z.array(z.string()).min(1),
-  preferences: TripPreferencesSchema,
-  accessibility_needs: z.array(z.string()).optional(),
-  dietary_restrictions: z.array(z.string()).optional()
-}).refine(data => data.endDate > data.startDate, {
-  message: "End date must be after start date"
-});
-
 // Utility validation functions
 export function validateTripRequest(data: unknown) {
   return TripRequestSchema.safeParse(data);
@@ -140,32 +124,4 @@ export function validateTripRequest(data: unknown) {
 
 export function validateTripResponse(data: unknown) {
   return TripResponseSchema.safeParse(data);
-}
-
-export function validateOnboardingForm(data: unknown) {
-  return OnboardingFormSchema.safeParse(data);
-}
-
-// Error formatting
-export function formatValidationErrors(result: z.SafeParseReturnType<any, any>) {
-  if (result.success) return null;
-
-  return result.error.errors.map(err => ({
-    field: err.path.join('.'),
-    message: err.message
-  }));
-}
-
-// Sanitization helpers
-export function sanitizeTripResponse(data: any): any {
-  // Remove any potentially harmful content
-  // Ensure costs are reasonable
-  // Validate coordinates are within bounds
-  return data;
-}
-
-export function sanitizeUserInput(input: string): string {
-  // Remove potentially harmful characters
-  // Limit length
-  return input.trim().substring(0, 1000);
 }

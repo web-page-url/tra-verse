@@ -125,7 +125,13 @@ export default function PlanPage() {
       const result = await response.json();
 
       if (result.success) {
-        router.push(`/trip/${result.data.trip_request_id}`);
+        // Use the actual trip ID from the itinerary, not the request ID
+        const tripId = result.data.itinerary?.trip_id || result.data.trip_request_id;
+
+        // Store the trip data in localStorage for the trip page to use
+        localStorage.setItem(`trip_${tripId}`, JSON.stringify(result.data.itinerary));
+
+        router.push(`/trip/${tripId}`);
       } else {
         throw new Error(result.error || 'Failed to create trip');
       }

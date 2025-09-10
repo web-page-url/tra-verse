@@ -1,128 +1,90 @@
-// Job queue implementation using BullMQ and Redis
-import { Queue, Worker, Job } from 'bullmq';
+// Simplified synchronous job processing without Redis
 import { generateItinerary } from './gemini-service';
 import { createTrip, updateTripRequestStatus } from './database';
 import { TripRequest } from '@/types';
-
-// Redis connection configuration
-const redisConfig = {
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD
-};
-
-// Create queue for trip generation
-const tripQueue = new Queue('trip-generation', {
-  connection: redisConfig,
-  defaultJobOptions: {
-    removeOnComplete: 100,
-    removeOnFail: 50,
-    attempts: 3,
-    backoff: {
-      type: 'exponential',
-      delay: 2000
-    }
-  }
-});
-
-// Worker to process trip generation jobs
-const tripWorker = new Worker('trip-generation',
-  async (job: Job) => {
-    const { tripRequestId, tripRequest }: { tripRequestId: string; tripRequest: TripRequest } = job.data;
-
-    try {
-      // Update status to processing
-      await updateTripRequestStatus(tripRequestId, 'processing');
-
-      // Generate itinerary using Gemini
-      const itinerary = await generateItinerary(tripRequest);
-
-      // Store the result
-      await createTrip(tripRequestId, itinerary);
-
-      // Update status to completed
-      await updateTripRequestStatus(tripRequestId, 'completed');
-
-      return itinerary;
-
-    } catch (error) {
-      console.error(`Job ${job.id} failed:`, error);
-
-      // Update status to failed
-      await updateTripRequestStatus(
-        tripRequestId,
-        'failed',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-
-      throw error;
-    }
-  },
-  {
-    connection: redisConfig,
-    concurrency: 5, // Process up to 5 jobs simultaneously
-    limiter: {
-      max: 10,
-      duration: 1000 // Max 10 jobs per second
-    }
-  }
-);
-
-// Event handlers for monitoring
-tripWorker.on('completed', (job) => {
-  console.log(`Job ${job.id} completed successfully`);
-});
-
-tripWorker.on('failed', (job, err) => {
-  console.error(`Job ${job?.id} failed with error: ${err.message}`);
-});
-
-tripWorker.on('stalled', (jobId) => {
-  console.warn(`Job ${jobId} stalled`);
-});
 
 // Queue management functions
 export async function queueTripGeneration(
   tripRequestId: string,
   tripRequest: TripRequest
-): Promise<void> {
-  await tripQueue.add('generate-itinerary', {
-    tripRequestId,
-    tripRequest
-  });
+): Promise<{ success: boolean; tripRequestId: string; itinerary: any }> {
+  console.log('🔄 Processing trip synchronously for:', tripRequestId);
+  try {
+    console.log('🔄 Step 1: Updating status to processing...');
+    await updateTripRequestStatus(tripRequestId, 'processing');
+    console.log('✅ Step 1 completed - Status updated to processing');
+
+    console.log('🔄 Step 2: Starting itinerary generation...');
+    console.log('📝 Trip request details:', JSON.stringify(tripRequest, null, 2));
+
+    const itinerary = await generateItinerary(tripRequest);
+    console.log('✅ Step 2 completed - Itinerary generated successfully');
+    console.log('📋 Generated itinerary summary:', {
+      trip_id: itinerary.trip_id,
+      summary: itinerary.summary?.substring(0, 100) + '...',
+      days: itinerary.days?.length || 0
+    });
+
+    console.log('🔄 Step 3: Saving trip to database...');
+    const tripResult = await createTrip(tripRequestId, itinerary);
+    console.log('✅ Step 3 completed - Trip saved to database');
+    console.log('🗃️ Trip saved with ID:', tripResult.id);
+
+    console.log('🔄 Step 4: Updating status to completed...');
+    await updateTripRequestStatus(tripRequestId, 'completed');
+    console.log('✅ Step 4 completed - Status updated to completed');
+
+    console.log('🎉 SUCCESS: Trip generation completed successfully');
+    console.log('📊 Final result:', { tripRequestId, tripId: itinerary.trip_id });
+
+    return {
+      success: true,
+      tripRequestId,
+      itinerary
+    };
+  } catch (error) {
+    console.error('❌ CRITICAL ERROR: Trip generation failed');
+    console.error('❌ Error type:', typeof error);
+    console.error('❌ Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('❌ Full error object:', error);
+
+    try {
+      await updateTripRequestStatus(
+        tripRequestId,
+        'failed',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      console.log('✅ Error status updated in database');
+    } catch (dbError) {
+      console.error('❌ Failed to update error status in database:', dbError);
+    }
+
+    throw error;
+  }
 }
 
+// Simplified status checking for synchronous processing
 export async function getJobStatus(jobId: string) {
-  const job = await tripQueue.getJob(jobId);
-  return job ? await job.getState() : null;
+  console.log('ℹ️ Job status check - all jobs processed synchronously');
+  return 'completed'; // Since we process synchronously, jobs are always completed or failed
 }
 
 export async function getQueueStats() {
-  const [waiting, active, completed, failed] = await Promise.all([
-    tripQueue.getWaiting(),
-    tripQueue.getActive(),
-    tripQueue.getCompleted(),
-    tripQueue.getFailed()
-  ]);
-
+  console.log('ℹ️ Queue stats - synchronous processing, no queue');
   return {
-    waiting: waiting.length,
-    active: active.length,
-    completed: completed.length,
-    failed: failed.length
+    waiting: 0,
+    active: 0,
+    completed: 0,
+    failed: 0
   };
 }
 
-// Cleanup function
+// Cleanup function - not needed for synchronous processing
 export async function cleanupCompletedJobs(): Promise<void> {
-  await tripQueue.clean(24 * 60 * 60 * 1000, 100); // Clean jobs older than 24 hours
+  console.log('ℹ️ Cleanup not needed - synchronous processing');
 }
 
-// Graceful shutdown
+// Graceful shutdown - not needed for synchronous processing
 export async function closeQueue(): Promise<void> {
-  await tripQueue.close();
-  await tripWorker.close();
+  console.log('ℹ️ No queue to close - synchronous processing');
 }
-
-// Export queue instance for monitoring
-export { tripQueue, tripWorker };
