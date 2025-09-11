@@ -1,5 +1,5 @@
 // Simplified synchronous job processing without Redis
-import { generateItinerary } from './gemini-service';
+import { generateItinerary } from './openai-service';
 import { createTrip, updateTripRequestStatus } from './database';
 import { TripRequest } from '@/types';
 

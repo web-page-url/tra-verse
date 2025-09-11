@@ -1,5 +1,5 @@
-// Gemini AI Service Integration for Tra Verse
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
+// OpenAI Service Integration for Tra Verse Travel Planning
+import OpenAI from 'openai';
 import { buildGeminiPrompt, buildRetryPrompt, FALLBACK_PROMPT } from './gemini-prompts';
 import { validateTripResponse } from './validation';
 import { TripRequest, TripResponse } from '@/types';
@@ -36,38 +36,31 @@ class RateLimiter {
 
 export const rateLimiter = new RateLimiter();
 
-// Initialize Gemini AI with error handling
-let genAI: GoogleGenerativeAI | null = null;
-let model: GenerativeModel | null = null;
+// Initialize OpenAI with error handling
+let openai: OpenAI | null = null;
+let model: string = 'gpt-4o-mini'; // Cheapest available model
 
 try {
-  if (process.env.GEMINI_API_KEY) {
-    console.log('🔑 Initializing Gemini AI...');
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash-lite',
-      generationConfig: {
-        temperature: 0.2,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 7192,
-      },
+  if (process.env.OPENAI_API_KEY) {
+    console.log('🔑 Initializing OpenAI...');
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
     });
-    console.log('✅ Gemini AI initialized successfully');
+    console.log('✅ OpenAI initialized successfully with model:', model);
   } else {
-    console.warn('⚠️ GEMINI_API_KEY not found. Using mock responses for development.');
+    console.warn('⚠️ OPENAI_API_KEY not found. Using mock responses for development.');
   }
 } catch (error) {
-  console.warn('❌ Failed to initialize Gemini AI:', error);
+  console.warn('❌ Failed to initialize OpenAI:', error);
 }
 
 export async function generateItinerary(
   tripRequest: TripRequest,
   maxRetries: number = 3
 ): Promise<TripResponse> {
-  // Check if Gemini is available
-  if (!model) {
-    throw new Error('Gemini AI is not initialized. Please check your GEMINI_API_KEY.');
+  // Check if OpenAI is available
+  if (!openai) {
+    throw new Error('OpenAI is not initialized. Please check your OPENAI_API_KEY.');
   }
 
   let lastError: Error | null = null;
@@ -88,37 +81,50 @@ export async function generateItinerary(
       console.log(`🔄 Attempt ${attempt + 1}/${maxRetries} - Generating itinerary...`);
       console.log(`📝 Prompt length: ${prompt.length} characters`);
 
-      // Add timeout wrapper for Gemini API call
+      // Add timeout wrapper for OpenAI API call
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Gemini API request timed out after 60 seconds')), 60000);
+        setTimeout(() => reject(new Error('OpenAI API request timed out after 60 seconds')), 60000);
       });
 
-      const result = await Promise.race([
-        model.generateContent(prompt),
+      const completion = await Promise.race([
+        openai.chat.completions.create({
+          model: model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert travel planner for Tra Verse, a premium travel planning platform. Always respond with valid JSON only. Be extremely precise with enum values - use exactly the values specified in the instructions.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 8192,
+          top_p: 0.9,
+        }),
         timeoutPromise
       ]);
 
-      // Type guard to ensure we have a valid result
-      if (!result || typeof result !== 'object' || !('response' in result)) {
-        throw new Error('Invalid response from Gemini API');
+      // Type guard to ensure we have a valid response
+      if (!completion ||
+          typeof completion !== 'object' ||
+          !('choices' in completion) ||
+          !Array.isArray((completion as any).choices) ||
+          (completion as any).choices.length === 0 ||
+          !(completion as any).choices[0].message) {
+        throw new Error('Invalid response from OpenAI API');
       }
 
-      const response = await result.response;
+      let text = (completion as any).choices[0].message.content || '';
 
-      // Type guard to ensure response has text method
-      if (!response || typeof response !== 'object' || !('text' in response) || typeof response.text !== 'function') {
-        throw new Error('Invalid response format from Gemini API');
-      }
-
-      let text = response.text();
-
-      console.log('📨 Raw Gemini Response:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+      console.log('📨 Raw OpenAI Response:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
       console.log('📊 Response Length:', text.length);
 
-      // Check if response is HTML (error page)
+      // Check if response contains HTML (error page)
       if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
-        console.error('❌ Gemini API returned HTML instead of JSON. This indicates an API error.');
-        throw new Error('Gemini API returned HTML error page instead of JSON response');
+        console.error('❌ OpenAI API returned HTML instead of JSON. This indicates an API error.');
+        throw new Error('OpenAI API returned HTML error page instead of JSON response');
       }
 
       // Clean up the response by removing markdown formatting
@@ -175,9 +181,23 @@ export async function generateItinerary(
     console.log('Trying fallback prompt...');
     const fallbackPrompt = `${FALLBACK_PROMPT}\n\nOriginal request: ${JSON.stringify(tripRequest)}`;
 
-    const result = await model.generateContent(fallbackPrompt);
-    const response = await result.response;
-    let text = response.text();
+    const completion = await openai.chat.completions.create({
+      model: model,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a backup travel planner. Always respond with valid JSON only. Be extremely precise with enum values - use exactly the values specified in the instructions.'
+        },
+        {
+          role: 'user',
+          content: fallbackPrompt
+        }
+      ],
+      temperature: 0.1,
+      max_tokens: 4096,
+    });
+
+    let text = completion.choices[0].message.content || '';
 
     // Clean up the response by removing markdown formatting
     text = text.trim();
@@ -205,7 +225,7 @@ export async function generateItinerary(
   }
 
   // If everything fails, try mock response for development
-  console.log('🔄 All Gemini API attempts failed, generating mock response...');
+  console.log('🔄 All OpenAI API attempts failed, generating mock response...');
   try {
     return generateMockItinerary(tripRequest);
   } catch (mockError) {
@@ -358,9 +378,9 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
           booking_url: "https://example.com/book"
         }
       ],
-      activities: days.flatMap(day => day.time_blocks
-        .filter(block => block.type === 'activity')
-        .map(block => ({
+      activities: days.flatMap((day: any) => day.time_blocks
+        .filter((block: any) => block.type === 'activity')
+        .map((block: any) => ({
           provider: "Mock Activity Booking",
           title: block.title,
           cost: block.cost,
@@ -517,37 +537,38 @@ function generateBasicMockItinerary(tripRequest: TripRequest): TripResponse {
   };
 }
 
-// Utility function to test Gemini connectivity
-export async function testGeminiConnection(): Promise<{ success: boolean; error?: string }> {
-  if (!model) {
-    console.log('ℹ️ Gemini model not available, using mock mode');
+// Utility function to test OpenAI connectivity
+export async function testOpenAIConnection(): Promise<{ success: boolean; error?: string }> {
+  if (!openai) {
+    console.log('ℹ️ OpenAI not available, using mock mode');
     return {
       success: true,
-      error: 'Using mock responses (Gemini API not available)'
+      error: 'Using mock responses (OpenAI API not available)'
     };
   }
 
   try {
-    const testPrompt = "Respond with a simple JSON: {\"status\": \"ok\", \"message\": \"Gemini API is working\"}";
-    const result = await model.generateContent(testPrompt);
-    const response = await result.response;
-    let text = response.text();
+    const completion = await openai.chat.completions.create({
+      model: model,
+      messages: [
+        {
+          role: 'user',
+          content: 'Respond with a simple JSON: {"status": "ok", "message": "OpenAI API is working"}'
+        }
+      ],
+      max_tokens: 50,
+      temperature: 0.1,
+    });
 
-    // Clean up the response by removing markdown formatting
-    text = text.trim();
-    if (text.startsWith('```json')) {
-      text = text.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-    } else if (text.startsWith('```')) {
-      text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
-    }
+    const response = completion.choices[0]?.message?.content || '';
+    const parsed = JSON.parse(response);
 
-    const parsed = JSON.parse(text);
     return {
       success: parsed.status === 'ok',
       error: parsed.status !== 'ok' ? 'Unexpected response format' : undefined
     };
   } catch (error) {
-    console.error('Gemini connection test failed:', error);
+    console.error('OpenAI connection test failed:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -556,10 +577,10 @@ export async function testGeminiConnection(): Promise<{ success: boolean; error?
 }
 
 // Function to get model information
-export async function getModelInfo() {
-  if (!model) {
+export async function getOpenAIModelInfo() {
+  if (!openai) {
     return {
-      model: 'gemini-2.5-flash-lite',
+      model: model,
       version: 'not-initialized',
       maxTokens: 8192,
       supportedFeatures: ['text-generation', 'json-output'],
@@ -568,25 +589,24 @@ export async function getModelInfo() {
   }
 
   try {
-    // This would typically call a Gemini API endpoint for model info
     return {
-      model: 'gemini-2.5-flash-lite',
+      model: model,
       version: 'latest',
       maxTokens: 8192,
-      supportedFeatures: ['text-generation', 'json-output'],
+      supportedFeatures: ['text-generation', 'json-output', 'chat-completion'],
       status: 'available'
     };
   } catch (error) {
-    console.error('Failed to get model info:', error);
+    console.error('Failed to get OpenAI model info:', error);
     return null;
   }
 }
 
-// Cost estimation (rough approximation)
-export function estimateGeminiCost(inputTokens: number, outputTokens: number): number {
-  // Gemini pricing (approximate as of 2024)
-  const inputCostPer1000 = 0.00025; // $0.00025 per 1000 input tokens
-  const outputCostPer1000 = 0.0005; // $0.0005 per 1000 output tokens
+// Cost estimation (rough approximation for gpt-4o-mini)
+export function estimateOpenAICost(inputTokens: number, outputTokens: number): number {
+  // OpenAI pricing for gpt-4o-mini (approximate as of 2024)
+  const inputCostPer1000 = 0.00015; // $0.00015 per 1000 input tokens
+  const outputCostPer1000 = 0.0006; // $0.0006 per 1000 output tokens
 
   const inputCost = (inputTokens / 1000) * inputCostPer1000;
   const outputCost = (outputTokens / 1000) * outputCostPer1000;

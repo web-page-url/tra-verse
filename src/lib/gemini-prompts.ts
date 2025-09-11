@@ -88,6 +88,14 @@ IMPORTANT:
 - Consider dietary restrictions if mentioned
 - Make the itinerary engaging and personalized
 
+VALID TIME BLOCK TYPES:
+Use ONLY these exact values for the "type" field in time_blocks:
+- "meal" (for breakfast, lunch, dinner, snacks)
+- "activity" (for sightseeing, tours, experiences)
+- "transport" (for travel between locations, airport transfers, taxis)
+- "logistics" (for check-in, check-out, airport procedures)
+- "free-time" (for relaxation, shopping, personal time)
+
 Generate a comprehensive, high-quality itinerary that would impress professional travelers.
 `;
 }

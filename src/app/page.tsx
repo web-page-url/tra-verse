@@ -11,41 +11,44 @@ export default function Home() {
   };
   return (
     <div className="min-h-screen bg-black text-green-400 overflow-hidden relative font-mono">
-      {/* Cyberpunk Background with Matrix-style Effects - Mobile Optimized */}
+      {/* Enhanced Cyberpunk Background with Matrix-style Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Matrix Rain Effect */}
+        {/* Enhanced Matrix Rain Effect */}
         <div className="matrix-rain"></div>
+        <div className="matrix-rain matrix-rain-delayed"></div>
 
-        {/* Neon Circuit Grid */}
-        <div className="absolute inset-0 cyber-grid"></div>
+        {/* Advanced Neon Circuit Grid */}
+        <div className="absolute inset-0 cyber-grid opacity-30"></div>
+        <div className="absolute inset-0 cyber-grid cyber-grid-secondary opacity-20"></div>
 
-        {/* Glowing Neon Orbs - Mobile Responsive */}
-        <div className="absolute -top-10 -right-10 sm:-top-20 sm:-right-20 w-48 h-48 sm:w-96 sm:h-96 bg-gradient-radial from-cyan-400/20 via-blue-500/10 to-transparent rounded-full animate-pulse-glow"></div>
-        <div className="absolute -bottom-10 -left-10 sm:-bottom-20 sm:-left-20 w-48 h-48 sm:w-96 sm:h-96 bg-gradient-radial from-magenta-400/20 via-purple-500/10 to-transparent rounded-full animate-pulse-glow-delayed"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-64 sm:h-64 bg-gradient-radial from-green-400/15 via-emerald-500/8 to-transparent rounded-full animate-pulse-glow-slow"></div>
+        {/* Enhanced Glowing Neon Orbs */}
+        <div className="absolute -top-10 -right-10 sm:-top-20 sm:-right-20 w-48 h-48 sm:w-96 sm:h-96 bg-gradient-radial from-cyan-400/30 via-blue-500/15 to-transparent rounded-full animate-pulse-glow shadow-[0_0_100px_rgba(34,211,238,0.3)]"></div>
+        <div className="absolute -bottom-10 -left-10 sm:-bottom-20 sm:-left-20 w-48 h-48 sm:w-96 sm:h-96 bg-gradient-radial from-magenta-400/30 via-purple-500/15 to-transparent rounded-full animate-pulse-glow-delayed shadow-[0_0_100px_rgba(236,72,153,0.3)]"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 sm:w-64 sm:h-64 bg-gradient-radial from-green-400/25 via-emerald-500/12 to-transparent rounded-full animate-pulse-glow-slow shadow-[0_0_80px_rgba(34,197,94,0.3)]"></div>
 
-        {/* Cyberpunk Data Streams - Mobile Hidden */}
-        <div className="hidden sm:block absolute top-1/4 left-1/4 w-1 h-32 bg-gradient-to-b from-cyan-400 to-transparent animate-data-stream"></div>
-        <div className="hidden sm:block absolute top-1/3 right-1/4 w-1 h-24 bg-gradient-to-b from-magenta-400 to-transparent animate-data-stream-delayed"></div>
-        <div className="hidden sm:block absolute bottom-1/3 left-1/3 w-1 h-40 bg-gradient-to-b from-green-400 to-transparent animate-data-stream-slow"></div>
+        {/* Cyberpunk Data Streams */}
+        <div className="absolute top-1/4 left-1/4 w-1 h-32 bg-gradient-to-b from-cyan-400 via-cyan-300/50 to-transparent animate-data-stream shadow-[0_0_20px_rgba(34,211,238,0.5)]"></div>
+        <div className="absolute top-1/3 right-1/4 w-1 h-24 bg-gradient-to-b from-magenta-400 via-magenta-300/50 to-transparent animate-data-stream-delayed shadow-[0_0_20px_rgba(236,72,153,0.5)]"></div>
+        <div className="absolute bottom-1/3 left-1/3 w-1 h-40 bg-gradient-to-b from-green-400 via-green-300/50 to-transparent animate-data-stream-slow shadow-[0_0_20px_rgba(34,197,94,0.5)]"></div>
 
-        {/* Floating Circuit Elements - Mobile Optimized */}
-        <div className="absolute top-12 left-6 sm:top-20 sm:left-10 w-12 h-12 sm:w-16 sm:h-16 border border-cyan-400/60 rounded animate-circuit-float">
-          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+        {/* Advanced Floating Circuit Elements */}
+        <div className="absolute top-12 left-6 sm:top-20 sm:left-10 w-12 h-12 sm:w-16 sm:h-16 border-2 border-cyan-400/80 rounded animate-circuit-float shadow-[0_0_30px_rgba(34,211,238,0.6)]">
+          <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
         </div>
-        <div className="absolute top-20 right-8 sm:top-32 sm:right-16 w-10 h-10 sm:w-12 sm:h-12 border border-magenta-400/60 rotate-45 animate-circuit-float-delayed">
-          <div className="absolute top-1/2 left-1/2 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-magenta-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+        <div className="absolute top-20 right-8 sm:top-32 sm:right-16 w-10 h-10 sm:w-12 sm:h-12 border-2 border-magenta-400/80 rotate-45 animate-circuit-float-delayed shadow-[0_0_30px_rgba(236,72,153,0.6)]">
+          <div className="absolute top-1/2 left-1/2 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-magenta-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_10px_rgba(236,72,153,0.8)]"></div>
         </div>
-        <div className="absolute bottom-16 left-8 sm:bottom-24 sm:left-20 w-11 h-11 sm:w-14 sm:h-14 border border-green-400/60 rounded-lg animate-circuit-float-slow">
-          <div className="absolute top-1/2 left-1/2 w-1 h-1 sm:w-1 sm:h-1 bg-green-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse"></div>
+        <div className="absolute bottom-16 left-8 sm:bottom-24 sm:left-20 w-11 h-11 sm:w-14 sm:h-14 border-2 border-green-400/80 rounded-lg animate-circuit-float-slow shadow-[0_0_30px_rgba(34,197,94,0.6)]">
+          <div className="absolute top-1/2 left-1/2 w-1 h-1 sm:w-1 sm:h-1 bg-green-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)]"></div>
         </div>
 
-        {/* Scanlines Effect */}
-        <div className="absolute inset-0 scanlines opacity-5 sm:opacity-10"></div>
+        {/* Enhanced Scanlines Effect */}
+        <div className="absolute inset-0 scanlines opacity-10 sm:opacity-15"></div>
 
-        {/* Glitch Lines - Mobile Hidden */}
-        <div className="hidden sm:block absolute top-1/4 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent animate-glitch-line"></div>
-        <div className="hidden sm:block absolute top-2/3 right-0 w-full h-0.5 bg-gradient-to-l from-transparent via-magenta-400/50 to-transparent animate-glitch-line-delayed"></div>
+        {/* Advanced Glitch Lines */}
+        <div className="absolute top-1/4 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent animate-glitch-line shadow-[0_0_20px_rgba(34,211,238,0.4)]"></div>
+        <div className="absolute top-2/3 right-0 w-full h-0.5 bg-gradient-to-l from-transparent via-magenta-400/70 to-transparent animate-glitch-line-delayed shadow-[0_0_20px_rgba(236,72,153,0.4)]"></div>
+        <div className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-green-400/70 to-transparent animate-glitch-line-slow shadow-[0_0_20px_rgba(34,197,94,0.4)]"></div>
 
         {/* Neon Border Frame - Mobile Optimized */}
         <div className="absolute inset-0 border border-cyan-400/20 sm:border-cyan-400/30 pointer-events-none">

@@ -154,10 +154,10 @@ export default function PlanPage() {
               </label>
               <input
                 type="text"
-                placeholder="e.g., Manali, India or Paris, France"
+                placeholder="e.g., Mumbai, India or Tokyo, Japan"
                 value={formData.location}
                 onChange={(e) => updateFormData('location', e.target.value)}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 placeholder-green-400/50 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
                 required
               />
             </div>
@@ -169,28 +169,66 @@ export default function PlanPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Start Date
+                <label className="block text-sm font-medium text-green-400/70 mb-2 font-mono">
+                  START DATE
                 </label>
-                <input
-                  type="date"
-                  value={formData.startDate}
-                  onChange={(e) => updateFormData('startDate', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  required
-                />
+                <div className="relative group">
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => updateFormData('startDate', e.target.value)}
+                    className="w-full px-4 py-3 pl-12 pr-14 bg-black/50 border-2 border-orange-400/50 rounded-lg text-green-400 focus:outline-none focus:border-orange-400 focus:shadow-[0_0_20px_rgba(249,115,22,0.3)] font-mono text-lg transition-all duration-300 cursor-pointer hover:border-orange-400/80"
+                    required
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400">
+                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const input = document.querySelector('input[type="date"]:first-of-type') as HTMLInputElement;
+                      if (input) input.showPicker?.() || input.click();
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-300 transition-colors duration-200 group-hover:animate-pulse"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  End Date
+                <label className="block text-sm font-medium text-green-400/70 mb-2 font-mono">
+                  END DATE
                 </label>
-                <input
-                  type="date"
-                  value={formData.endDate}
-                  onChange={(e) => updateFormData('endDate', e.target.value)}
-                  className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
-                  required
-                />
+                <div className="relative group">
+                  <input
+                    type="date"
+                    value={formData.endDate}
+                    onChange={(e) => updateFormData('endDate', e.target.value)}
+                    className="w-full px-4 py-3 pl-12 pr-14 bg-black/50 border-2 border-orange-400/50 rounded-lg text-green-400 focus:outline-none focus:border-orange-400 focus:shadow-[0_0_20px_rgba(249,115,22,0.3)] font-mono text-lg transition-all duration-300 cursor-pointer hover:border-orange-400/80"
+                    required
+                  />
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-orange-400">
+                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const inputs = document.querySelectorAll('input[type="date"]') as NodeListOf<HTMLInputElement>;
+                      if (inputs[1]) inputs[1].showPicker?.() || inputs[1].click();
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-300 transition-colors duration-200 group-hover:animate-pulse"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -206,7 +244,7 @@ export default function PlanPage() {
               <select
                 value={formData.numPeople}
                 onChange={(e) => updateFormData('numPeople', parseInt(e.target.value))}
-                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                   <option key={num} value={num} className="bg-slate-800">{num}</option>
@@ -224,14 +262,14 @@ export default function PlanPage() {
                   placeholder="Minimum"
                   value={formData.budgetMin}
                   onChange={(e) => updateFormData('budgetMin', parseInt(e.target.value))}
-                  className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 placeholder-green-400/50 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
                 />
                 <input
                   type="number"
                   placeholder="Maximum"
                   value={formData.budgetMax}
                   onChange={(e) => updateFormData('budgetMax', parseInt(e.target.value))}
-                  className="px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 placeholder-green-400/50 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
                 />
               </div>
             </div>
@@ -370,41 +408,68 @@ export default function PlanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-800 text-white">
+    <div className="min-h-screen bg-black text-green-400 overflow-hidden relative font-mono">
+      {/* Cyberpunk Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Matrix Rain Effect */}
+        <div className="matrix-rain opacity-30"></div>
+
+        {/* Cyber Grid */}
+        <div className="absolute inset-0 cyber-grid opacity-20"></div>
+
+        {/* Neon Orbs */}
+        <div className="absolute -top-20 -right-20 w-64 h-64 bg-gradient-radial from-cyan-400/20 via-blue-500/10 to-transparent rounded-full animate-pulse-glow"></div>
+        <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-gradient-radial from-magenta-400/20 via-purple-500/10 to-transparent rounded-full animate-pulse-glow-delayed"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-radial from-green-400/15 via-emerald-500/8 to-transparent rounded-full animate-pulse-glow-slow"></div>
+
+        {/* Data Streams */}
+        <div className="absolute top-1/5 left-1/5 w-1 h-24 bg-gradient-to-b from-cyan-400 to-transparent animate-data-stream"></div>
+        <div className="absolute top-2/5 right-1/5 w-1 h-20 bg-gradient-to-b from-magenta-400 to-transparent animate-data-stream-delayed"></div>
+        <div className="absolute bottom-1/4 left-2/5 w-1 h-28 bg-gradient-to-b from-green-400 to-transparent animate-data-stream-slow"></div>
+
+        {/* Scanlines */}
+        <div className="absolute inset-0 scanlines opacity-5"></div>
+      </div>
+
       {/* Header */}
-      <header className="flex items-center justify-between p-6">
-        <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-purple-500 bg-clip-text text-transparent">
-          Tra Verse
+      <header className="relative flex items-center justify-between p-6 border-b border-cyan-400/20">
+        <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-cyan-400 via-green-400 to-magenta-400 bg-clip-text text-transparent animate-pulse-glow">
+          TRA VERSE
         </Link>
-        <div className="text-sm text-gray-400">
-          Step {currentStep} of {steps.length}
+        <div className="text-sm text-cyan-400 border border-cyan-400/30 px-3 py-1 rounded bg-black/50 backdrop-blur-sm">
+          <span className="animate-pulse">●</span> STEP {currentStep} / {steps.length}
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="relative max-w-2xl mx-auto px-6 py-12">
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-mono border-2 ${
                     step.id <= currentStep
-                      ? 'bg-teal-500 text-white'
-                      : 'bg-white/20 text-gray-400'
+                      ? 'bg-cyan-400 text-black border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)] animate-pulse'
+                      : 'bg-black/50 text-green-400 border-green-400/50'
                   }`}
                 >
-                  {step.id}
+                  {step.id <= currentStep ? '●' : step.id}
                 </div>
                 {index < steps.length - 1 && (
                   <div
-                    className={`w-16 h-1 mx-2 ${
-                      step.id < currentStep ? 'bg-teal-500' : 'bg-white/20'
+                    className={`w-20 h-1 mx-3 ${
+                      step.id < currentStep
+                        ? 'bg-gradient-to-r from-cyan-400 to-green-400 shadow-[0_0_10px_rgba(34,211,238,0.3)]'
+                        : 'bg-green-400/20'
                     }`}
                   />
                 )}
               </div>
             ))}
+          </div>
+          <div className="text-center text-xs text-green-400/70 font-mono">
+            {steps[currentStep - 1]?.description}
           </div>
         </div>
 
@@ -416,11 +481,19 @@ export default function PlanPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20"
+            className="relative bg-black/80 backdrop-blur-lg rounded-2xl p-8 border border-cyan-400/30 shadow-[0_0_50px_rgba(34,211,238,0.1)]"
           >
+            {/* Corner Accents */}
+            <div className="absolute top-2 left-2 w-4 h-4 border-l-2 border-t-2 border-cyan-400/50"></div>
+            <div className="absolute top-2 right-2 w-4 h-4 border-r-2 border-t-2 border-cyan-400/50"></div>
+            <div className="absolute bottom-2 left-2 w-4 h-4 border-l-2 border-b-2 border-cyan-400/50"></div>
+            <div className="absolute bottom-2 right-2 w-4 h-4 border-r-2 border-b-2 border-cyan-400/50"></div>
+
             <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-2">{steps[currentStep - 1].title}</h2>
-              <p className="text-gray-300">{steps[currentStep - 1].description}</p>
+              <h2 className="text-2xl font-bold mb-2 text-cyan-400 font-mono tracking-wider">
+                {steps[currentStep - 1].title.toUpperCase()}
+              </h2>
+              <p className="text-green-400/70 font-mono text-sm">{steps[currentStep - 1].description}</p>
             </div>
 
             {renderStepContent()}
@@ -432,34 +505,34 @@ export default function PlanPage() {
           <button
             onClick={prevStep}
             disabled={currentStep === 1}
-            className="flex items-center px-6 py-3 bg-white/10 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 transition-all"
+            className="flex items-center px-6 py-3 bg-black/50 border-2 border-green-400/50 rounded-lg text-green-400 disabled:opacity-30 disabled:cursor-not-allowed hover:border-green-400 hover:shadow-[0_0_20px_rgba(34,197,94,0.3)] font-mono text-lg transition-all duration-300 disabled:hover:shadow-none"
           >
             <ChevronLeftIcon className="w-5 h-5 mr-2" />
-            Previous
+            PREVIOUS
           </button>
 
           {currentStep < steps.length ? (
             <button
               onClick={nextStep}
               disabled={!isStepValid()}
-              className="flex items-center px-6 py-3 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-cyan-400 rounded-lg text-black disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] font-mono text-lg font-bold transition-all duration-300 disabled:hover:shadow-none"
             >
-              Next
+              NEXT
               <ChevronRightIcon className="w-5 h-5 ml-2" />
             </button>
           ) : (
             <button
               onClick={handleSubmit}
               disabled={!isStepValid() || isLoading}
-              className="flex items-center px-8 py-3 bg-gradient-to-r from-teal-500 to-purple-600 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+              className="flex items-center px-8 py-3 bg-gradient-to-r from-cyan-400 via-green-400 to-magenta-400 border-2 border-cyan-400 rounded-lg text-black disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(34,211,238,0.6)] font-mono text-lg font-bold transition-all duration-300 disabled:hover:shadow-none animate-pulse-glow"
             >
               {isLoading ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Creating Your Trip...
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-2"></div>
+                  GENERATING MATRIX...
                 </>
               ) : (
-                'Create My Itinerary'
+                'GENERATE ITINERARY'
               )}
             </button>
           )}

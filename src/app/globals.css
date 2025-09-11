@@ -25,6 +25,26 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Hide native date picker icons since we have custom buttons */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+  display: none;
+}
+
+input[type="date"]::-ms-calendar-picker-indicator {
+  display: none;
+}
+
+/* Ensure date inputs are clickable */
+input[type="date"] {
+  cursor: pointer;
+}
+
 /* Custom animations for Tra Verse */
 @keyframes blob {
   0% {
