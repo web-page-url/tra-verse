@@ -49,6 +49,10 @@ export interface TripRequest {
     weather_api?: boolean;
     local_events_api?: boolean;
     time_zone?: string;
+    coordinates?: {
+      lat: number;
+      lng: number;
+    };
   };
 }
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftIcon, MapPinIcon, ClockIcon, CurrencyDollarIcon, CloudIcon, SunIcon } from '@heroicons/react/24/outline';
+import ItineraryMap from '@/components/ItineraryMap';
 
 interface TripResponse {
   trip_id: string;
@@ -207,6 +208,11 @@ export default function TripPage() {
               <div className="text-sm text-green-400/70 font-mono">MATRIX DATE</div>
             </div>
           </div>
+        </div>
+
+        {/* Itinerary Map */}
+        <div className="mb-8">
+          <ItineraryMap trip={trip} />
         </div>
 
         {/* Days */}

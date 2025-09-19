@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import GoogleMap from '@/components/GoogleMap';
 
 interface FormData {
   location: string;
+  coordinates?: { lat: number; lng: number };
   startDate: string;
   endDate: string;
   numPeople: number;
@@ -52,6 +54,7 @@ export default function PlanPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     location: '',
+    coordinates: undefined,
     startDate: '',
     endDate: '',
     numPeople: 2,
@@ -68,6 +71,14 @@ export default function PlanPage() {
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleLocationChange = (location: string, coordinates?: { lat: number; lng: number }) => {
+    setFormData(prev => ({
+      ...prev,
+      location,
+      coordinates
+    }));
   };
 
   const nextStep = () => {
@@ -111,6 +122,9 @@ export default function PlanPage() {
           constraints: {
             dietary_restrictions: formData.dietaryRestrictions
           }
+        },
+        context: {
+          coordinates: formData.coordinates
         }
       };
 
@@ -147,21 +161,10 @@ export default function PlanPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Destination
-              </label>
-              <input
-                type="text"
-                placeholder="e.g., Mumbai, India or Tokyo, Japan"
-                value={formData.location}
-                onChange={(e) => updateFormData('location', e.target.value)}
-                className="w-full px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 placeholder-green-400/50 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
-                required
-              />
-            </div>
-          </div>
+          <GoogleMap
+            location={formData.location}
+            onLocationChange={handleLocationChange}
+          />
         );
 
       case 2:
@@ -189,7 +192,13 @@ export default function PlanPage() {
                     type="button"
                     onClick={() => {
                       const input = document.querySelector('input[type="date"]:first-of-type') as HTMLInputElement;
-                      if (input) input.showPicker?.() || input.click();
+                      if (input) {
+                        if (typeof input.showPicker === 'function') {
+                          input.showPicker();
+                        } else {
+                          input.click();
+                        }
+                      }
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-300 transition-colors duration-200 group-hover:animate-pulse"
                   >
@@ -220,7 +229,13 @@ export default function PlanPage() {
                     type="button"
                     onClick={() => {
                       const inputs = document.querySelectorAll('input[type="date"]') as NodeListOf<HTMLInputElement>;
-                      if (inputs[1]) inputs[1].showPicker?.() || inputs[1].click();
+                      if (inputs[1]) {
+                        if (typeof inputs[1].showPicker === 'function') {
+                          inputs[1].showPicker();
+                        } else {
+                          inputs[1].click();
+                        }
+                      }
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-orange-400 hover:text-orange-300 transition-colors duration-200 group-hover:animate-pulse"
                   >

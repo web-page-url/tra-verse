@@ -5,6 +5,9 @@ import { validateTripResponse } from './validation';
 import { TripRequest, TripResponse } from '@/types';
 import { searchRestaurants, searchAttractions } from './places-service';
 
+// Google Maps API Key
+const GOOGLE_MAPS_API_KEY = 'AIzaSyC4TQVz0zicFzb_HOg4v_5TgAHRXJ-dLBU';
+
 // Rate limiting helper
 class RateLimiter {
   private requests: number[] = [];
