@@ -74,7 +74,7 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [markers, setMarkers] = useState<any[]>([]);
-  const [selectedDay, setSelectedDay] = useState<number>(1); // Start with day 1
+  const [selectedDay, setSelectedDay] = useState<number | null>(null); // Start with all days view
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoadingLocations, setIsLoadingLocations] = useState(true);
@@ -144,19 +144,20 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
     }
   }, [map, locations, selectedDay]);
 
-  // Auto-advance to next day every 10 seconds (if auto-play is enabled)
+  // Auto-advance to next day every 10 seconds (if auto-play is enabled and not in all-days view)
   useEffect(() => {
-    if (isLoaded && !isLoadingLocations && locations.length > 0 && isAutoPlaying) {
+    if (isLoaded && !isLoadingLocations && locations.length > 0 && isAutoPlaying && selectedDay !== null) {
       const interval = setInterval(() => {
         setSelectedDay(prevDay => {
+          if (prevDay === null) return 1; // Start with day 1 if currently showing all days
           const nextDay = prevDay + 1;
-          return nextDay > trip.days.length ? 1 : nextDay;
+          return nextDay > trip.days.length ? null : nextDay; // Go back to all days after last day
         });
       }, 10000); // 10 seconds
 
       return () => clearInterval(interval);
     }
-  }, [isLoaded, isLoadingLocations, locations.length, trip.days.length, isAutoPlaying]);
+  }, [isLoaded, isLoadingLocations, locations.length, trip.days.length, isAutoPlaying, selectedDay]);
 
   const initializeMap = () => {
     if (!mapRef.current || !window.google) return;
@@ -270,11 +271,6 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
     markers.forEach(marker => marker.setMap(null));
     const newMarkers: any[] = [];
 
-    // Get locations for the selected day
-    const dayLocations = locations.filter(loc =>
-      loc.activities.some(activity => activity.day === selectedDay)
-    );
-
     // Day colors - cycle through different colors for each day
     const dayColors = [
       '#00ff88', // Day 1: Green
@@ -289,74 +285,92 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
       '#78909c'  // Day 10: Grey
     ];
 
-    const dayColor = dayColors[(selectedDay - 1) % dayColors.length];
+    // Get locations to show (all locations if selectedDay is null, otherwise filter by day)
+    const locationsToShow = selectedDay === null
+      ? locations
+      : locations.filter(loc => loc.activities.some(activity => activity.day === selectedDay));
 
-    dayLocations.forEach((location, index) => {
+    locationsToShow.forEach((location) => {
       if (!location.coordinates) return;
 
-      // Get activities for this specific day
-      const dayActivities = location.activities.filter(activity => activity.day === selectedDay);
+      // Get all activities for this location (for all days if showing all, or specific day)
+      const relevantActivities = selectedDay === null
+        ? location.activities // Show all activities for this location
+        : location.activities.filter(activity => activity.day === selectedDay);
 
-      // Create custom marker based on activity types for this day
-      const activityTypes = dayActivities.map(a => a.type);
-      const hasMeals = activityTypes.includes('meal');
-      const hasActivities = activityTypes.includes('activity');
-      const hasTransport = activityTypes.includes('transport');
+      // Group activities by day for display
+      const activitiesByDay = relevantActivities.reduce((acc, activity) => {
+        if (!acc[activity.day]) acc[activity.day] = [];
+        acc[activity.day].push(activity);
+        return acc;
+      }, {} as Record<number, typeof relevantActivities>);
 
-      let markerSymbol = '📍';
+      // Create markers for each day this location appears in
+      Object.entries(activitiesByDay).forEach(([dayStr, dayActivities]) => {
+        const day = parseInt(dayStr);
+        const dayColor = dayColors[(day - 1) % dayColors.length];
 
-      if (hasActivities && hasMeals) {
-        markerSymbol = '🏛️'; // Mixed activities
-      } else if (hasActivities) {
-        markerSymbol = '🎯'; // Activities
-      } else if (hasMeals) {
-        markerSymbol = '🍽️'; // Meals
-      } else if (hasTransport) {
-        markerSymbol = '🚗'; // Transport
-      }
+        // Create custom marker for this day
+        const activityTypes = dayActivities.map(a => a.type);
+        const hasMeals = activityTypes.includes('meal');
+        const hasActivities = activityTypes.includes('activity');
+        const hasTransport = activityTypes.includes('transport');
 
-      // Create pulsing marker for current day
-      const marker = new window.google.maps.Marker({
-        position: location.coordinates,
-        map: map,
-        title: `${location.location} - Day ${selectedDay}`,
-        icon: {
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-            <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="25" cy="25" r="22" fill="${dayColor}" stroke="#ffffff" stroke-width="3"/>
-              <circle cx="25" cy="25" r="12" fill="${dayColor}" opacity="0.8"/>
-              <circle cx="25" cy="25" r="6" fill="#ffffff"/>
-              <text x="25" y="31" text-anchor="middle" fill="#1a1a1a" font-size="18" font-weight="bold">${selectedDay}</text>
-              <circle cx="25" cy="25" r="24" fill="none" stroke="${dayColor}" stroke-width="2" opacity="0.6">
-                <animate attributeName="r" values="24;30;24" dur="2s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
-              </circle>
-            </svg>
-          `)}`,
-          scaledSize: new window.google.maps.Size(50, 50),
-          anchor: new window.google.maps.Point(25, 25)
-        },
-        animation: window.google.maps.Animation.DROP
+        let markerSymbol = '📍';
+        if (hasActivities && hasMeals) {
+          markerSymbol = '🏛️'; // Mixed activities
+        } else if (hasActivities) {
+          markerSymbol = '🎯'; // Activities
+        } else if (hasMeals) {
+          markerSymbol = '🍽️'; // Meals
+        } else if (hasTransport) {
+          markerSymbol = '🚗'; // Transport
+        }
+
+        const marker = new window.google.maps.Marker({
+          position: location.coordinates,
+          map: map,
+          title: `${location.location} - Day ${day}`,
+          icon: {
+            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+              <svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="25" cy="25" r="22" fill="${dayColor}" stroke="#ffffff" stroke-width="3"/>
+                <circle cx="25" cy="25" r="12" fill="${dayColor}" opacity="0.8"/>
+                <circle cx="25" cy="25" r="6" fill="#ffffff"/>
+                <text x="25" y="31" text-anchor="middle" fill="#1a1a1a" font-size="18" font-weight="bold">${day}</text>
+                ${selectedDay === day ? `
+                  <circle cx="25" cy="25" r="24" fill="none" stroke="${dayColor}" stroke-width="2" opacity="0.6">
+                    <animate attributeName="r" values="24;30;24" dur="2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+                  </circle>
+                ` : ''}
+              </svg>
+            `)}`,
+            scaledSize: new window.google.maps.Size(50, 50),
+            anchor: new window.google.maps.Point(25, 25)
+          },
+          animation: selectedDay === day ? window.google.maps.Animation.DROP : null
+        });
+
+        // Create detailed info window for this day's activities
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: createDayInfoWindowContent(location, dayActivities, day, dayColor)
+        });
+
+        marker.addListener('click', () => {
+          // Close other info windows
+          newMarkers.forEach(m => m.infoWindow?.close());
+          infoWindow.open(map, marker);
+        });
+
+        marker.infoWindow = infoWindow;
+        newMarkers.push(marker);
       });
-
-      // Create detailed info window for this day's activities
-      const infoWindow = new window.google.maps.InfoWindow({
-        content: createDayInfoWindowContent(location, dayActivities, selectedDay, dayColor)
-      });
-
-      marker.addListener('click', () => {
-        // Close other info windows
-        newMarkers.forEach(m => m.infoWindow?.close());
-        infoWindow.open(map, marker);
-      });
-
-      marker.infoWindow = infoWindow;
-      newMarkers.push(marker);
     });
 
     setMarkers(newMarkers);
 
-    // Fit map to show all markers for this day
+    // Fit map to show all markers
     if (newMarkers.length > 0) {
       const bounds = new window.google.maps.LatLngBounds();
       newMarkers.forEach(marker => {
@@ -371,8 +385,7 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
         map.setZoom(Math.min(map.getZoom(), 12)); // Wider view for multiple locations
       }
     } else {
-      // No locations for this day, show a message
-      console.log(`No locations found for Day ${selectedDay}`);
+      console.log(selectedDay === null ? 'No locations found for any day' : `No locations found for Day ${selectedDay}`);
     }
   };
 
@@ -434,39 +447,62 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
           {/* Current Day Display */}
           <div className="text-center">
             <div className="inline-flex items-center gap-4 bg-black/50 border border-cyan-400/30 rounded-xl px-6 py-3">
-              <button
-                onClick={() => setSelectedDay(prev => prev > 1 ? prev - 1 : trip.days.length)}
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
-                disabled={!isLoaded}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+              {selectedDay !== null && (
+                <button
+                  onClick={() => setSelectedDay(prev => prev && prev > 1 ? prev - 1 : trip.days.length)}
+                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                  disabled={!isLoaded}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              )}
 
               <div className="text-center">
                 <div className="text-2xl font-bold text-cyan-400 font-mono">
-                  DAY {selectedDay}
+                  {selectedDay === null ? 'ALL DAYS' : `DAY ${selectedDay}`}
                 </div>
                 <div className="text-sm text-green-400/70 font-mono">
-                  {trip.days[selectedDay - 1]?.title.replace('Day ' + selectedDay + ': ', '') || 'Loading...'}
+                  {selectedDay === null
+                    ? 'Complete trip overview'
+                    : (trip.days[selectedDay - 1]?.title.replace('Day ' + selectedDay + ': ', '') || 'Loading...')
+                  }
                 </div>
               </div>
 
-              <button
-                onClick={() => setSelectedDay(prev => prev < trip.days.length ? prev + 1 : 1)}
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
-                disabled={!isLoaded}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              {selectedDay !== null && (
+                <button
+                  onClick={() => setSelectedDay(prev => prev && prev < trip.days.length ? prev + 1 : 1)}
+                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                  disabled={!isLoaded}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Play/Pause and Day Buttons */}
-          <div className="flex items-center justify-center gap-4">
+          {/* Control Buttons */}
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            {/* All Days Button */}
+            <button
+              onClick={() => {
+                setSelectedDay(null);
+                setIsAutoPlaying(false);
+              }}
+              className={`px-4 py-2 rounded-lg font-mono transition-all duration-300 ${
+                selectedDay === null
+                  ? 'bg-cyan-400 text-black border-2 border-cyan-400'
+                  : 'bg-black/50 text-cyan-400 border border-cyan-400/30 hover:border-cyan-400/60'
+              }`}
+              disabled={!isLoaded}
+            >
+              🌍 ALL DAYS
+            </button>
+
             {/* Play/Pause Button */}
             <button
               onClick={() => setIsAutoPlaying(!isAutoPlaying)}
@@ -583,7 +619,11 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
         </div>
 
         <div className="mt-4 text-sm text-cyan-400/70 font-mono">
-          💡 <strong>Tip:</strong> Click on markers to see detailed activity information.
+          💡 <strong>Tip:</strong> Click on markers to see activities for each location.
+          {selectedDay === null
+            ? ' Showing all locations from your trip.'
+            : ` Showing Day ${selectedDay} locations.`
+          }
           {isAutoPlaying ? ' Auto-advancing every 10 seconds.' : ' Auto-play paused - use controls to navigate.'}
         </div>
       </div>

@@ -176,15 +176,16 @@ export default function ItineraryMapTestPage() {
             🗺️ DAY-WISE ITINERARY MAP TEST
           </h1>
           <p className="text-green-400/80 mb-4 font-mono">
-            This test demonstrates the dynamic day-wise itinerary map. The map shows locations day by day with color-coded markers, auto-advancing every 10 seconds, and interactive navigation controls.
+            This test demonstrates the comprehensive day-wise itinerary map. The map shows ALL locations from ALL days simultaneously with color-coded markers, allowing you to see your complete trip at a glance.
           </p>
           <div className="bg-cyan-400/10 border border-cyan-400/30 rounded-lg p-4">
             <h3 className="text-cyan-400 font-mono font-semibold mb-2">🎯 NEW FEATURES:</h3>
             <ul className="text-sm text-green-400/80 font-mono space-y-1">
-              <li>• <strong>Day-wise display:</strong> Shows locations one day at a time</li>
-              <li>• <strong>Color-coded markers:</strong> Each day has its unique color</li>
-              <li>• <strong>Auto-advance:</strong> Automatically progresses through days every 10 seconds</li>
-              <li>• <strong>Navigation controls:</strong> Play/pause, previous/next day buttons</li>
+              <li>• <strong>All locations visible:</strong> Shows all trip locations at once with day-wise markers</li>
+              <li>• <strong>Color-coded by day:</strong> Each day has its unique color (Day 1=Green, Day 2=Orange, etc.)</li>
+              <li>• <strong>Multiple markers per location:</strong> Same location on different days gets separate markers</li>
+              <li>• <strong>Auto-advance:</strong> Cycles through days every 10 seconds (All Days → Day 1 → Day 2 → ... → All Days)</li>
+              <li>• <strong>Flexible navigation:</strong> View all days, specific days, or let it auto-play</li>
               <li>• <strong>Interactive markers:</strong> Click for detailed day-specific activities</li>
             </ul>
           </div>

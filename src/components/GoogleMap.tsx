@@ -20,7 +20,6 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
   const inputRef = useRef<HTMLInputElement>(null);
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
-  const [autocomplete, setAutocomplete] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -89,55 +88,25 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
     setMap(mapInstance);
 
-    // Initialize autocomplete
-    if (inputRef.current) {
-      const autocompleteInstance = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['(cities)'],
-        fields: ['formatted_address', 'geometry', 'name']
-      });
-
-      autocompleteInstance.addListener('place_changed', () => {
-        const place = autocompleteInstance.getPlace();
-
-        if (place.geometry && place.geometry.location) {
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          const address = place.formatted_address || place.name;
-
-          // Update map center and marker
-          mapInstance.setCenter({ lat, lng });
-          mapInstance.setZoom(12);
-
-          // Remove existing marker
-          if (marker) {
-            marker.setMap(null);
-          }
-
-          // Add new marker
-          const newMarker = new window.google.maps.Marker({
-            position: { lat, lng },
-            map: mapInstance,
-            title: address,
-            icon: {
-              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="20" cy="20" r="18" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
-                  <circle cx="20" cy="20" r="8" fill="#00ff88" opacity="0.3"/>
-                  <circle cx="20" cy="16" r="3" fill="#1a1a1a"/>
-                </svg>
-              `),
-              scaledSize: new window.google.maps.Size(40, 40),
-              anchor: new window.google.maps.Point(20, 40)
-            }
-          });
-
-          setMarker(newMarker);
-          onLocationChange(address, { lat, lng });
+      // Simple marker for default location
+      const defaultMarker = new window.google.maps.Marker({
+        position: { lat: 20.5937, lng: 78.9629 },
+        map: mapInstance,
+        title: 'Center of India',
+        icon: {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
+              <circle cx="20" cy="20" r="8" fill="#00ff88" opacity="0.3"/>
+              <circle cx="20" cy="16" r="3" fill="#1a1a1a"/>
+            </svg>
+          `),
+          scaledSize: new window.google.maps.Size(40, 40),
+          anchor: new window.google.maps.Point(20, 40)
         }
       });
 
-      setAutocomplete(autocompleteInstance);
-    }
+      setMarker(defaultMarker);
   };
 
   const handleLocationInputChange = (value: string) => {

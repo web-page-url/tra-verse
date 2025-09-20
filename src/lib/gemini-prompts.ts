@@ -87,6 +87,7 @@ IMPORTANT:
 - Add variety to the itinerary (mix of activities, culture, food, relaxation)
 - Consider dietary restrictions if mentioned
 - Make the itinerary engaging and personalized
+- Include Real location  --> as per the Selected Place from the User. The Place Should Exist in the Selected Place from the User.
 
 VALID TIME BLOCK TYPES:
 Use ONLY these exact values for the "type" field in time_blocks:

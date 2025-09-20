@@ -123,6 +123,7 @@ export async function generateItinerary(
 
       console.log('📨 Raw OpenAI Response:', text.substring(0, 500) + (text.length > 500 ? '...' : ''));
       console.log('📊 Response Length:', text.length);
+      console.log('🤖 Full AI Response:', text); // Log the complete response
 
       // Check if response contains HTML (error page)
       if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
