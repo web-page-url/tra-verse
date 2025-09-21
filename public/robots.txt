@@ -1,5 +1,5 @@
 # Robots.txt for Tra Verse - AI-Powered Travel Planning Platform
-# https://tra-verse.com/robots.txt
+# https://tra-verse-ai.vercel.app/robots.txt
 
 User-agent: *
 Allow: /
@@ -30,7 +30,7 @@ Disallow: /map-test
 Disallow: /itinerary-map-test
 
 # Allow access to sitemap
-Sitemap: https://tra-verse.com/sitemap.xml
+Sitemap: https://tra-verse-ai.vercel.app/sitemap.xml
 
 # Crawl delay (optional)
 Crawl-delay: 1

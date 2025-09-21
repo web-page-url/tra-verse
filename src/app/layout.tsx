@@ -8,7 +8,7 @@ const structuredData = {
   "@type": "WebApplication",
   "name": "Tra-verse",
   "description": "Adventure on your terms with travel plans tailored perfectly to your style and interests!",
-  "url": "https://tra-verse.vercel.app",
+  "url": "https://tra-verse-ai.vercel.app/",
   "applicationCategory": "TravelApplication",
   "operatingSystem": "Web Browser",
   "offers": {
@@ -20,7 +20,7 @@ const structuredData = {
   "creator": {
     "@type": "Organization",
     "name": "Tra Verse",
-    "url": "https://tra-verse.vercel.app"
+    "url": "https://tra-verse-ai.vercel.app/"
   },
   "featureList": [
     "AI-generated personalized itineraries",
@@ -32,7 +32,7 @@ const structuredData = {
   ],
   "screenshot": {
     "@type": "ImageObject",
-    "url": "https://tra-verse.vercel.app/tra-verse.jpg",
+    "url": "https://tra-verse-ai.vercel.app/tra-verse.jpg",
     "width": 1200,
     "height": 630
   }
@@ -60,18 +60,18 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://tra-verse.vercel.app'),
+  metadataBase: new URL('https://tra-verse-ai.vercel.app/'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "Tra-verse: Your Trip, Your Way.",
     description: "Adventure on your terms with travel plans tailored perfectly to your style and interests!",
-    url: 'https://tra-verse.vercel.app',
+    url: 'https://tra-verse-ai.vercel.app/',
     siteName: 'Tra Verse',
     images: [
       {
-        url: 'https://tra-verse.vercel.app/tra-verse.jpg',
+        url: 'https://tra-verse-ai.vercel.app/tra-verse.jpg',
         width: 1200,
         height: 630,
         alt: 'Tra-verse: Your Trip, Your Way - Adventure on your terms with personalized travel planning',
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "Tra-verse: Your Trip, Your Way.",
     description: "Adventure on your terms with travel plans tailored perfectly to your style and interests!",
-    images: ['https://tra-verse.vercel.app/tra-verse.jpg'],
+    images: ['https://tra-verse-ai.vercel.app/tra-verse.jpg'],
     creator: '@traverse_ai',
     site: '@traverse_ai',
   },

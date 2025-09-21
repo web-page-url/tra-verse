@@ -8,12 +8,12 @@
 
   <!-- Homepage -->
   <url>
-    <loc>https://tra-verse.com/</loc>
+    <loc>https://tra-verse-ai.vercel.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <lastmod>2025-01-21</lastmod>
     <image:image>
-      <image:loc>https://tra-verse.com/tra-verse.jpg</image:loc>
+      <image:loc>https://tra-verse-ai.vercel.app/tra-verse.jpg</image:loc>
       <image:title>Tra Verse - AI-Powered Travel Planning Platform</image:title>
       <image:caption>Transform your travel dreams into reality with AI-powered itineraries and smart maps</image:caption>
     </image:image>
@@ -21,7 +21,7 @@
 
   <!-- Plan Page -->
   <url>
-    <loc>https://tra-verse.com/plan</loc>
+    <loc>https://tra-verse-ai.vercel.app/plan</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
     <lastmod>2025-01-21</lastmod>
@@ -29,7 +29,7 @@
 
   <!-- Trip Detail Pages (Dynamic) -->
   <url>
-    <loc>https://tra-verse.com/trip/*</loc>
+    <loc>https://tra-verse-ai.vercel.app/trip/*</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
     <lastmod>2025-01-21</lastmod>
@@ -37,14 +37,14 @@
 
   <!-- Test Pages -->
   <url>
-    <loc>https://tra-verse.com/itinerary-map-test</loc>
+    <loc>https://tra-verse-ai.vercel.app/itinerary-map-test</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
     <lastmod>2025-01-21</lastmod>
   </url>
 
   <url>
-    <loc>https://tra-verse.com/map-test</loc>
+    <loc>https://tra-verse-ai.vercel.app/map-test</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
     <lastmod>2025-01-21</lastmod>
