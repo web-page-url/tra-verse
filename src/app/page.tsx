@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
+import UserReviews from "@/components/UserReviews";
 
 export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -432,6 +433,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* User Reviews Section */}
+        <UserReviews />
 
         {/* Enhanced CTA Section */}
         <section id="ready-to-explore" className="py-24 px-6 relative">

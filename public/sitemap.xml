@@ -45,6 +45,24 @@
     </image:image>
   </url>
 
+  <!-- User Reviews Images -->
+  <url>
+    <loc>https://tra-verse-ai.vercel.app/#reviews</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2025-01-21</lastmod>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face</image:loc>
+      <image:title>Sarah Chen - Japan Adventure Review</image:title>
+      <image:caption>Happy Tra Verse user sharing their Japan travel experience</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face</image:loc>
+      <image:title>Marcus Rodriguez - Paris Getaway Review</image:title>
+      <image:caption>Satisfied traveler reviewing their Paris trip planned with Tra Verse AI</image:caption>
+    </image:image>
+  </url>
+
   <!-- Trip Detail Pages (Dynamic) -->
   <url>
     <loc>https://tra-verse-ai.vercel.app/trip/*</loc>
