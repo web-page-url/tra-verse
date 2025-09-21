@@ -1,6 +1,6 @@
-# Tra Verse - AI-Powered Travel Planning
+# Tra-verse: Your Trip, Your Way
 
-**Tra Verse** is a premium travel planning web app that uses Google Gemini AI to generate personalized, optimized itineraries based on user preferences. Built with Next.js 15, TypeScript, and modern web technologies.
+**Tra-verse** is a premium AI-powered travel planning platform that creates personalized, optimized itineraries tailored perfectly to your style and interests. Built with Next.js 15, TypeScript, and modern web technologies.
 
 ## ✨ Features
 

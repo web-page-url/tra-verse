@@ -5,8 +5,8 @@ import { validateTripResponse } from './validation';
 import { TripRequest, TripResponse } from '@/types';
 import { searchPlacesByMood } from './places-service';
 
-// Google Maps API Key
-const GOOGLE_MAPS_API_KEY = 'AIzaSyC4TQVz0zicFzb_HOg4v_5TgAHRXJ-dLBU';
+// Google Maps API Key from environment
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 // Rate limiting helper
 class RateLimiter {

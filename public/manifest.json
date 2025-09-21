@@ -1,7 +1,7 @@
 {
-  "name": "Tra Verse - AI-Powered Travel Planning",
-  "short_name": "Tra Verse",
-  "description": "Transform your travel dreams into reality with AI-powered itineraries and smart maps",
+  "name": "Tra-verse: Your Trip, Your Way",
+  "short_name": "Tra-verse",
+  "description": "Adventure on your terms with travel plans tailored perfectly to your style and interests!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -192,7 +192,7 @@
       "sizes": "1200x630",
       "type": "image/jpeg",
       "form_factor": "wide",
-      "label": "Tra Verse Homepage"
+      "label": "Tra-verse: Your Trip, Your Way"
     }
   ]
 }

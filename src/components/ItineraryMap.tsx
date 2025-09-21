@@ -116,7 +116,7 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
   useEffect(() => {
     if (!window.google && !document.querySelector('script[src*="maps.googleapis.com"]')) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4TQVz0zicFzb_HOg4v_5TgAHRXJ-dLBU&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {

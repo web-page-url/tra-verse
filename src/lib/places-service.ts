@@ -70,7 +70,7 @@ export interface EnhancedPlaceDetails extends GooglePlace {
 
 // 🎭 Creative Google Places API Service with LLM Enhancement
 class CreativePlacesService {
-  private apiKey: string = 'AIzaSyC4TQVz0zicFzb_HOg4v_5TgAHRXJ-dLBU';
+  private apiKey: string = process.env.GOOGLE_MAPS_API_KEY || '';
   private baseUrl: string = 'https://maps.googleapis.com/maps/api/place';
 
   constructor() {
