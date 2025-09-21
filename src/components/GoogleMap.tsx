@@ -25,18 +25,26 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
   const [geocodedLocation, setGeocodedLocation] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load Google Maps API
+    // Load Google Maps API with error handling
     if (!window.google && !document.querySelector('script[src*="maps.googleapis.com"]')) {
+      console.log('🔄 Loading Google Maps API...');
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC4TQVz0zicFzb_HOg4v_5TgAHRXJ-dLBU&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
+        console.log('✅ Google Maps API loaded successfully');
         setIsLoaded(true);
         initializeMap();
       };
+      script.onerror = (error) => {
+        console.error('❌ Failed to load Google Maps API:', error);
+        setIsLoaded(false);
+        setGeocodingError('Failed to load Google Maps. Please check your internet connection.');
+      };
       document.head.appendChild(script);
     } else if (window.google) {
+      console.log('✅ Google Maps API already loaded');
       setIsLoaded(true);
       initializeMap();
     }
@@ -45,10 +53,14 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
   const initializeMap = () => {
     if (!mapRef.current || !window.google) return;
 
-    // Initialize map
+    // Initialize map with Street View enabled
     const mapInstance = new window.google.maps.Map(mapRef.current, {
       center: { lat: 20.0, lng: 0.0 }, // Global center (Prime Meridian)
       zoom: 2,
+      streetViewControl: true, // Enable Street View control (pegman)
+      streetViewControlOptions: {
+        position: window.google.maps.ControlPosition.RIGHT_BOTTOM // Position pegman at bottom right
+      },
       styles: [
         {
           featureType: 'all',
@@ -90,10 +102,30 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
     setMap(mapInstance);
 
-      // Simple marker for default location
-      const defaultMarker = new window.google.maps.Marker({
-        position: { lat: 20.0, lng: 0.0 },
-        map: mapInstance,
+    // Add Street View event listeners
+    window.google.maps.event.addListener(mapInstance, 'click', (event: any) => {
+      // Close any open Street View when clicking on map
+      if (mapInstance.getStreetView().getVisible()) {
+        mapInstance.getStreetView().setVisible(false);
+      }
+    });
+
+    // Listen for Street View visibility changes
+    window.google.maps.event.addListener(mapInstance.getStreetView(), 'visible_changed', () => {
+      const streetViewVisible = mapInstance.getStreetView().getVisible();
+      console.log('🏙️ Street View visibility changed:', streetViewVisible);
+
+      if (streetViewVisible) {
+        console.log('🏙️ Street View opened at:', mapInstance.getStreetView().getPosition()?.toJSON());
+      } else {
+        console.log('🏙️ Street View closed');
+      }
+    });
+
+    // Simple marker for default location
+    const defaultMarker = new window.google.maps.Marker({
+      position: { lat: 20.0, lng: 0.0 },
+      map: mapInstance,
         title: 'Global Center',
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
@@ -195,8 +227,14 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
       // CRITICAL: Always center map on the geocoded result - no fallbacks
       console.log('🗺️ CENTERING MAP on geocoded location...');
-      map.panTo({ lat, lng });
-      map.setZoom(12);
+      try {
+        map.panTo({ lat, lng });
+        map.setZoom(12);
+        console.log('✅ Map centered successfully');
+      } catch (mapError) {
+        console.error('❌ Failed to center map:', mapError);
+        // Continue with marker creation even if centering fails
+      }
 
       // Remove existing marker
       if (marker) {
@@ -206,25 +244,101 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
       // Add new marker at the EXACT geocoded location
       console.log('📍 Adding marker at geocoded location');
-      const newMarker = new window.google.maps.Marker({
-        position: { lat, lng },
-        map: map,
-        title: formattedAddress,
-        animation: window.google.maps.Animation.DROP,
-        icon: {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="20" cy="20" r="18" fill="#00ff88" stroke="#00ff88" stroke-width="2"/>
-              <circle cx="20" cy="20" r="8" fill="#00ff88" opacity="0.3"/>
-              <circle cx="20" cy="16" r="3" fill="#1a1a1a"/>
-            </svg>
-          `),
-          scaledSize: new window.google.maps.Size(40, 40),
-          anchor: new window.google.maps.Point(20, 40)
-        }
-      });
 
-      setMarker(newMarker);
+      try {
+        // Create marker with a simple, reliable custom icon
+        const newMarker = new window.google.maps.Marker({
+          position: { lat, lng },
+          map: map,
+          title: formattedAddress,
+          animation: window.google.maps.Animation.DROP,
+          draggable: true, // Make marker draggable
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            scale: 8,
+            fillColor: '#00ff88',
+            fillOpacity: 1,
+            strokeColor: '#ffffff',
+            strokeWeight: 2,
+          }
+        });
+
+        // Add click listener to show info window
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `<div style="font-family: monospace; color: #00ff88;">
+                     <strong>${formattedAddress}</strong><br>
+                     <small>Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}</small>
+                   </div>`
+        });
+
+        newMarker.addListener('click', () => {
+          infoWindow.open(map, newMarker);
+        });
+
+        // Add drag listener for live location updates
+        newMarker.addListener('dragend', (event: any) => {
+          console.log('📍 Marker dragged to new position');
+          const newLat = event.latLng.lat();
+          const newLng = event.latLng.lng();
+
+          // Reverse geocode to get address for new position
+          const geocoder = new window.google.maps.Geocoder();
+          geocoder.geocode({ location: { lat: newLat, lng: newLng } }, (results: any, status: any) => {
+            if (status === 'OK' && results && results.length > 0) {
+              const newAddress = results[0].formatted_address;
+              console.log('📍 Reverse geocoded address:', newAddress);
+
+              // Update info window content
+              infoWindow.setContent(`<div style="font-family: monospace; color: #00ff88;">
+                                       <strong>${newAddress}</strong><br>
+                                       <small>Lat: ${newLat.toFixed(4)}, Lng: ${newLng.toFixed(4)}</small>
+                                     </div>`);
+
+              // Update UI display
+              setGeocodedLocation(newAddress);
+
+              // Update parent component with new location
+              onLocationChange(newAddress, { lat: newLat, lng: newLng });
+
+              console.log('✅ Live location updated via drag');
+            }
+          });
+        });
+
+        // Add dragstart listener for visual feedback
+        newMarker.addListener('dragstart', () => {
+          console.log('🎯 Starting to drag marker');
+          // Close info window during drag
+          infoWindow.close();
+        });
+
+        setMarker(newMarker);
+        console.log('✅ Draggable marker successfully added to map');
+      } catch (markerError) {
+        console.error('❌ Failed to create marker:', markerError);
+        // Create marker with default icon as fallback (also draggable)
+        const fallbackMarker = new window.google.maps.Marker({
+          position: { lat, lng },
+          map: map,
+          title: formattedAddress,
+          animation: window.google.maps.Animation.DROP,
+          draggable: true
+        });
+
+        // Add basic drag functionality to fallback marker too
+        fallbackMarker.addListener('dragend', (event: any) => {
+          console.log('📍 Fallback marker dragged to new position');
+          const newLat = event.latLng.lat();
+          const newLng = event.latLng.lng();
+
+          // Basic update without reverse geocoding for fallback
+          onLocationChange(`${newLat.toFixed(4)}, ${newLng.toFixed(4)}`, { lat: newLat, lng: newLng });
+          console.log('✅ Fallback marker location updated');
+        });
+
+        setMarker(fallbackMarker);
+        console.log('⚠️ Created draggable fallback marker with default icon');
+      }
 
       // Set the geocoded location for UI display
       setGeocodedLocation(formattedAddress);
@@ -300,6 +414,20 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
         {isLoaded && (
           <div className="absolute top-2 left-2 bg-black/80 text-green-400 px-3 py-1 rounded-lg font-mono text-sm border border-cyan-400/30">
             🗺️ Interactive Map
+          </div>
+        )}
+
+        {isLoaded && !geocodingError && (
+          <div className="absolute top-14 left-2 bg-black/80 text-cyan-400 px-3 py-1 rounded-lg font-mono text-xs border border-cyan-400/30 max-w-xs">
+            <div className="text-cyan-300 font-semibold">🎯 Drag Marker</div>
+            <div className="text-cyan-400/80">Click and drag the green marker to set location</div>
+          </div>
+        )}
+
+        {isLoaded && (
+          <div className="absolute bottom-20 right-2 bg-black/80 text-yellow-400 px-3 py-1 rounded-lg font-mono text-xs border border-yellow-400/30 max-w-xs">
+            <div className="text-yellow-300 font-semibold">🏙️ Street View</div>
+            <div className="text-yellow-400/80">Drag the yellow pegman onto the map</div>
           </div>
         )}
 
