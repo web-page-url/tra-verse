@@ -27,6 +27,24 @@
     <lastmod>2025-01-21</lastmod>
   </url>
 
+  <!-- About Page -->
+  <url>
+    <loc>https://tra-verse-ai.vercel.app/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <lastmod>2025-01-21</lastmod>
+    <image:image>
+      <image:loc>https://tra-verse-ai.vercel.app/anubhav.png</image:loc>
+      <image:title>Anubhav - B.Tech CSE, IIT Mandi</image:title>
+      <image:caption>Co-founder & Full-Stack Developer of Tra Verse</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://tra-verse-ai.vercel.app/akriti.jpg</image:loc>
+      <image:title>Akriti - B.Tech DSE, IIT Mandi</image:title>
+      <image:caption>Co-founder & Data Scientist of Tra Verse</image:caption>
+    </image:image>
+  </url>
+
   <!-- Trip Detail Pages (Dynamic) -->
   <url>
     <loc>https://tra-verse-ai.vercel.app/trip/*</loc>
