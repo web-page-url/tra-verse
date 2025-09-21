@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TargetCursor from "@/components/TargetCursor";
 import ScrollToTop from "@/components/ScrollToTop";
+import TripBot from "@/components/TripBot";
 
 // Structured Data for SEO
 const structuredData = {
@@ -197,6 +198,7 @@ export default function RootLayout({
           hideDefaultCursor={true}
         />
         <ScrollToTop />
+        <TripBot />
       </body>
     </html>
   );

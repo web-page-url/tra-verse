@@ -24,6 +24,7 @@
     "framer-motion": "^11.11.0",
     "gsap": "^3.13.0",
     "jsonwebtoken": "^9.0.0",
+    "lucide-react": "^0.544.0",
     "mapbox-gl": "^3.0.0",
     "next": "15.5.2",
     "openai": "^5.20.1",
