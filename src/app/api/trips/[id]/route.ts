@@ -6,10 +6,10 @@ import { TripResponse } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const tripId = params.id;
+    const { id: tripId } = await params;
 
     const trip = await getTripById(tripId);
 
@@ -42,10 +42,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const tripId = params.id;
+    const { id: tripId } = await params;
     const body = await request.json();
 
     // TODO: Validate regeneration request

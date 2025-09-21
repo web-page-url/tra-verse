@@ -279,7 +279,7 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             description: mainAttraction?.description || `Visit a popular attraction in ${trip.location}`,
             cost: mainAttraction?.estimated_cost?.amount || Math.floor(Math.random() * 100) + 50,
             currency: user.budget.currency,
-            notes: mainAttraction ? `⭐ ${mainAttraction.rating} (${mainAttraction.user_ratings_total} reviews) • ${mainAttraction.best_time_to_visit}` : "Don't forget your camera!",
+            notes: mainAttraction ? `⭐ ${mainAttraction.rating} (${mainAttraction.user_ratings_total} reviews)` : "Don't forget your camera!",
             place_id: mainAttraction?.place_id,
             rating: mainAttraction?.rating,
             reviews_count: mainAttraction?.user_ratings_total,
@@ -308,7 +308,7 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             description: afternoonAttraction?.description || `Experience the culture of ${trip.location}`,
             cost: afternoonAttraction?.estimated_cost?.amount || Math.floor(Math.random() * 80) + 40,
             currency: user.budget.currency,
-            notes: afternoonAttraction ? `⭐ ${afternoonAttraction.rating} (${afternoonAttraction.user_ratings_total} reviews) • ${afternoonAttraction.best_time_to_visit}` : "Learn something new!",
+            notes: afternoonAttraction ? `⭐ ${afternoonAttraction.rating} (${afternoonAttraction.user_ratings_total} reviews)` : "Learn something new!",
             place_id: afternoonAttraction?.place_id,
             rating: afternoonAttraction?.rating,
             reviews_count: afternoonAttraction?.user_ratings_total,
@@ -358,9 +358,9 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
           booking_url: "https://example.com/book"
         }
       ],
-      activities: days.flatMap(day => day.time_blocks
-        .filter(block => block.type === 'activity')
-        .map(block => ({
+      activities: days.flatMap((day: any) => day.time_blocks
+        .filter((block: any) => block.type === 'activity')
+        .map((block: any) => ({
           provider: "Mock Activity Booking",
           title: block.title,
           cost: block.cost,

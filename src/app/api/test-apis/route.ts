@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
 export async function GET(request: NextRequest) {
-  const results = {
+  const results: any = {
     openai: { status: 'unknown', error: null },
     googleMaps: { status: 'unknown', error: null },
     environment: process.env.NODE_ENV

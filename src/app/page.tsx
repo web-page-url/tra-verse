@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -220,6 +221,29 @@ export default function Home() {
               <span className="text-green-400/80 animate-fade-in-delayed block">
                 Discover personalized itineraries that adapt to your preferences, budget, and schedule.
               </span>
+            </div>
+
+            {/* Hero Image - SEO Optimized */}
+            <div className="mb-12 sm:mb-16 px-4">
+              <div className="relative max-w-4xl mx-auto">
+                <Image
+                  src="/tra-verse.jpg"
+                  alt="Tra Verse - AI-Powered Travel Planning Platform - Transform your travel dreams into reality with personalized itineraries and smart maps"
+                  width={1200}
+                  height={630}
+                  priority
+                  className="w-full h-auto rounded-2xl shadow-2xl border border-cyan-400/20"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl"></div>
+                <div className="absolute bottom-4 left-4 right-4 text-center">
+                  <p className="text-white/90 text-sm sm:text-base font-mono">
+                    🚀 AI-Powered Travel Planning • Smart Maps • Instant Booking
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Cyberpunk CTA Buttons - Mobile Responsive */}

@@ -101,7 +101,7 @@ export class FoursquarePlacesService {
     this.apiKey = process.env.FSQ_API_KEY || '';
 
     if (!this.apiKey) {
-      console.warn('⚠️ Foursquare API key not found. Using mock data for development.');
+      console.error('❌ Foursquare API key not found. Places service will fail without API key.');
     } else {
       console.log('🔑 Foursquare API key loaded successfully');
     }
@@ -116,8 +116,7 @@ export class FoursquarePlacesService {
   ): Promise<EnhancedPlace[]> {
     try {
       if (!this.apiKey) {
-        console.log('🔄 Using mock places data for development...');
-        return this.getMockPlaces(location, type, limit);
+        throw new Error('Foursquare API key not configured. Please set FSQ_API_KEY environment variable.');
       }
 
       // Map place type to Foursquare query
@@ -138,15 +137,15 @@ export class FoursquarePlacesService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.warn(`Foursquare API error: ${response.status} ${response.statusText}. Response: ${errorText}. Using mock data.`);
-        return this.getMockPlaces(location, type, limit);
+        console.error(`❌ Foursquare API error: ${response.status} ${response.statusText}. Response: ${errorText}`);
+        throw new Error(`Foursquare API returned ${response.status}: ${response.statusText}`);
       }
 
       const data: FoursquareResponse = await response.json();
 
       if (!data.results || data.results.length === 0) {
-        console.warn('No places found from Foursquare, using mock data');
-        return this.getMockPlaces(location, type, limit);
+        console.warn('No places found from Foursquare');
+        return [];
       }
 
       // Convert Foursquare places to our enhanced format
@@ -182,7 +181,7 @@ export class FoursquarePlacesService {
       return places;
     } catch (error) {
       console.error('Error searching places:', error);
-      return this.getMockPlaces(location, type, limit);
+      throw new Error(`Failed to search places: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -257,74 +256,6 @@ export class FoursquarePlacesService {
     };
   }
 
-  // Get mock places for development
-  private getMockPlaces(location: string, type: string, limit: number): EnhancedPlace[] {
-    const mockPlaces: Record<string, EnhancedPlace[]> = {
-      restaurant: [
-        {
-          place_id: 'mock_rest_1',
-          name: 'Local Delight Restaurant',
-          formatted_address: `${location}, India`,
-          rating: 4.5,
-          user_ratings_total: 250,
-          price_level: 2,
-          types: ['restaurant'],
-          geometry: { location: { lat: 28.6139, lng: 77.2090 } },
-          opening_hours: { open_now: true },
-          vicinity: 'Near city center',
-          estimated_cost: { currency: 'INR', amount: 500 },
-          tags: ['local cuisine', 'authentic']
-        },
-        {
-          place_id: 'mock_rest_2',
-          name: 'Modern Fusion Cafe',
-          formatted_address: `${location}, India`,
-          rating: 4.2,
-          user_ratings_total: 180,
-          price_level: 3,
-          types: ['restaurant'],
-          geometry: { location: { lat: 28.6140, lng: 77.2091 } },
-          opening_hours: { open_now: true },
-          vicinity: 'Downtown area',
-          estimated_cost: { currency: 'INR', amount: 800 },
-          tags: ['fusion', 'modern']
-        }
-      ],
-      tourist_attraction: [
-        {
-          place_id: 'mock_attr_1',
-          name: 'Historic Landmark',
-          formatted_address: `${location}, India`,
-          rating: 4.7,
-          user_ratings_total: 1200,
-          price_level: 1,
-          types: ['tourist_attraction'],
-          geometry: { location: { lat: 28.6138, lng: 77.2089 } },
-          opening_hours: { open_now: true },
-          vicinity: 'City center',
-          estimated_cost: { currency: 'INR', amount: 200 },
-          tags: ['historical', 'landmark']
-        },
-        {
-          place_id: 'mock_attr_2',
-          name: 'Cultural Site',
-          formatted_address: `${location}, India`,
-          rating: 4.4,
-          user_ratings_total: 800,
-          price_level: 1,
-          types: ['tourist_attraction'],
-          geometry: { location: { lat: 28.6137, lng: 77.2088 } },
-          opening_hours: { open_now: true },
-          vicinity: 'Near market area',
-          estimated_cost: { currency: 'INR', amount: 150 },
-          tags: ['cultural', 'heritage']
-        }
-      ]
-    };
-
-    const places = mockPlaces[type] || mockPlaces.restaurant;
-    return places.slice(0, limit);
-  }
 }
 
 // Export the service instance

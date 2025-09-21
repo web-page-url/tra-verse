@@ -5,10 +5,10 @@ import { JobStatus } from '@/types';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const tripRequestId = params.id;
+    const { id: tripRequestId } = await params;
 
     const status = await getTripRequestStatus(tripRequestId);
 
@@ -24,11 +24,11 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      data: {
+      data: {  
         trip_request_id: tripRequestId,
         status: status.status,
-        progress: status.progress || 0,
-        estimated_completion: status.estimated_completion,
+        progress: 0, // Mock progress for now
+        estimated_completion: null, // Mock estimated completion
         error_message: status.error_message,
         created_at: status.created_at
       }

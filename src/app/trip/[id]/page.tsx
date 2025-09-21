@@ -75,8 +75,18 @@ export default function TripPage() {
   useEffect(() => {
     const fetchTrip = async () => {
       try {
+        // Await params in Next.js 15
+        const resolvedParams = await params;
+        if (!resolvedParams?.id) {
+          setError('Invalid trip ID');
+          setLoading(false);
+          return;
+        }
+
+        const tripId = resolvedParams.id;
+
         // First, try to get trip data from localStorage
-        const storedTrip = localStorage.getItem(`trip_${params.id}`);
+        const storedTrip = localStorage.getItem(`trip_${tripId}`);
         if (storedTrip) {
           const tripData = JSON.parse(storedTrip);
           setTrip(tripData);
@@ -85,7 +95,7 @@ export default function TripPage() {
         }
 
         // If not in localStorage, try to fetch from API
-        const response = await fetch(`/api/trips/${params.id}`);
+        const response = await fetch(`/api/trips/${tripId}`);
         const result = await response.json();
 
         if (result.success) {
@@ -101,10 +111,8 @@ export default function TripPage() {
       }
     };
 
-    if (params.id) {
-      fetchTrip();
-    }
-  }, [params.id]);
+    fetchTrip();
+  }, [params]);
 
   if (loading) {
     return (

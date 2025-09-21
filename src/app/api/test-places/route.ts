@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
           rating: place.rating,
           reviews: place.user_ratings_total,
           address: place.formatted_address,
-          type: place.category,
+          type: place.types?.join(', ') || 'Unknown',
           description: place.description,
           cost: place.estimated_cost,
         })),
