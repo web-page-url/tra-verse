@@ -40,7 +40,7 @@ export const TripRequestSchema = z.object({
   }),
   trip: z.object({
     location: z.string().min(1),
-    days: z.number().int().positive().max(30),
+    days: z.number().int().positive().max(3),
     preferences: TripPreferencesSchema,
     constraints: TripConstraintsSchema.optional()
   }),

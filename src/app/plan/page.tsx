@@ -69,8 +69,36 @@ export default function PlanPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const calculateDays = (startDate: string, endDate: string): number => {
+    if (!startDate || !endDate) return 0;
+    return Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  };
+
   const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+
+      // Validate date range doesn't exceed 3 days
+      if (field === 'startDate' || field === 'endDate') {
+        const days = calculateDays(newData.startDate, newData.endDate);
+        if (days > 3) {
+          // If more than 3 days, adjust the end date to be exactly 3 days from start
+          if (field === 'startDate' && newData.endDate) {
+            const startDate = new Date(value);
+            const maxEndDate = new Date(startDate);
+            maxEndDate.setDate(startDate.getDate() + 2); // +2 because we add 1 in calculateDays
+            newData.endDate = maxEndDate.toISOString().split('T')[0];
+          } else if (field === 'endDate' && newData.startDate) {
+            const endDate = new Date(value);
+            const minStartDate = new Date(endDate);
+            minStartDate.setDate(endDate.getDate() - 2); // -2 because we add 1 in calculateDays
+            newData.startDate = minStartDate.toISOString().split('T')[0];
+          }
+        }
+      }
+
+      return newData;
+    });
   };
 
   const handleLocationChange = (location: string, coordinates?: { lat: number; lng: number }) => {
@@ -174,6 +202,7 @@ export default function PlanPage() {
               <div>
                 <label className="block text-sm font-medium text-green-400/70 mb-2 font-mono">
                   START DATE
+                  <span className="text-xs text-cyan-400/60 ml-2">(Max 3 days total)</span>
                 </label>
                 <div className="relative group">
                   <input
@@ -211,6 +240,7 @@ export default function PlanPage() {
               <div>
                 <label className="block text-sm font-medium text-green-400/70 mb-2 font-mono">
                   END DATE
+                  <span className="text-xs text-cyan-400/60 ml-2">(Max 3 days total)</span>
                 </label>
                 <div className="relative group">
                   <input
@@ -246,6 +276,23 @@ export default function PlanPage() {
                 </div>
               </div>
             </div>
+
+            {/* Days Display */}
+            {formData.startDate && formData.endDate && (
+              <div className="text-center mt-4">
+                <div className={`inline-flex items-center px-4 py-2 rounded-lg font-mono text-sm ${
+                  calculateDays(formData.startDate, formData.endDate) <= 3
+                    ? 'bg-green-900/20 border border-green-400/50 text-green-400'
+                    : 'bg-red-900/20 border border-red-400/50 text-red-400'
+                }`}>
+                  <span className="mr-2">📅</span>
+                  <span>
+                    {calculateDays(formData.startDate, formData.endDate)} day{calculateDays(formData.startDate, formData.endDate) !== 1 ? 's' : ''} selected
+                    {calculateDays(formData.startDate, formData.endDate) > 3 && ' (Maximum 3 days allowed)'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         );
 
