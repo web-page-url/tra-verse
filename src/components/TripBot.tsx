@@ -22,7 +22,7 @@ export default function TripBot({ isDark = false }: TripBotProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! 🌍 I\'m TripBot, your AI travel assistant for Tra Verse. How can I help you plan your perfect trip today?',
+      text: 'Hello! 🌍 I\'m Tra Verse AI, your AI travel assistant for Tra Verse. How can I help you plan your perfect trip today?',
       sender: 'bot',
       timestamp: new Date()
     }
@@ -58,14 +58,14 @@ export default function TripBot({ isDark = false }: TripBotProps) {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-      const systemPrompt = `You are TripBot, an AI assistant for Tra Verse, a premium AI-powered travel planning platform.
+      const systemPrompt = `You are Tra Verse AI, an AI assistant for Tra Verse, a premium AI-powered travel planning platform.
 
 About Tra Verse:
 - AI-powered itinerary generation for personalized travel experiences
 - Interactive maps with location selection and itinerary visualization
 - Support for global destinations with focus on India and worldwide travel
 - Maximum 3-day trip planning with detailed daily schedules
-- If Asked Who Built you --> Reply --> Anubhav & Akriti
+- If Asked Who Built Tra Verse AI --> Reply --> Anubhav & Akriti
 - Features include meal recommendations, activity suggestions, and transportation options
 
 Your role:
@@ -164,7 +164,7 @@ User query: ${prompt}`;
             rotate: isOpen ? 180 : 0,
           }}
           transition={{ duration: 0.3 }}
-          aria-label="Close TripBot chat"
+          aria-label="Close Tra Verse AI chat"
         >
           <X className="w-4 h-4 mx-auto" aria-hidden="true" />
         </motion.button>
@@ -178,7 +178,7 @@ User query: ${prompt}`;
             setIsOpen(true);
             setIsMinimized(false); // Reset minimized state when opening
           }}
-          aria-label="Open TripBot travel assistant"
+          aria-label="Open Tra Verse AI travel assistant"
           whileHover={{
             scale: 1.1,
             boxShadow: "0 20px 40px rgba(147, 51, 234, 0.6), 0 0 20px rgba(236, 72, 153, 0.4)"
@@ -272,14 +272,14 @@ User query: ${prompt}`;
                 </motion.div>
                 <div>
                   <h3 className="text-white font-bold text-base flex items-center gap-2">
-                    TripBot
+                    Tra Verse AI
                     <motion.span
                       className="w-2 h-2 bg-green-400 rounded-full"
                       animate={{ opacity: [1, 0.3, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
                   </h3>
-                  <p className="text-white/90 text-xs">Your AI Travel Assistant</p>
+                  <p className="text-white/90 text-xs">AI-Powered Travel Assistant</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 relative z-10">
@@ -342,7 +342,7 @@ User query: ${prompt}`;
                       <Bot className="w-4 h-4" />
                     )}
                     <span className="text-xs font-medium">
-                      {message.sender === 'user' ? 'You' : 'TripBot'}
+                      {message.sender === 'user' ? 'You' : 'Tra Verse AI'}
                     </span>
                   </div>
                   <p className={`leading-relaxed ${
