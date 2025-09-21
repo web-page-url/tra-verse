@@ -103,6 +103,7 @@ async function testTripGeneration() {
       text = text.replace(/^```\s*/, '').replace(/\s*```$/, '');
     }
 
+    console.log('📨 Raw Response :', text, '\n');
     console.log('📨 Raw Response Length:', text.length);
     console.log('📨 Response Preview:', text.substring(0, 200) + '...');
     console.log();

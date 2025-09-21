@@ -21,6 +21,8 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [geocodingError, setGeocodingError] = useState<string | null>(null);
+  const [geocodedLocation, setGeocodedLocation] = useState<string | null>(null);
 
   useEffect(() => {
     // Load Google Maps API
@@ -45,8 +47,8 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
     // Initialize map
     const mapInstance = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 20.5937, lng: 78.9629 }, // Center of India
-      zoom: 5,
+      center: { lat: 20.0, lng: 0.0 }, // Global center (Prime Meridian)
+      zoom: 2,
       styles: [
         {
           featureType: 'all',
@@ -90,9 +92,9 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
 
       // Simple marker for default location
       const defaultMarker = new window.google.maps.Marker({
-        position: { lat: 20.5937, lng: 78.9629 },
+        position: { lat: 20.0, lng: 0.0 },
         map: mapInstance,
-        title: 'Center of India',
+        title: 'Global Center',
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
             <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -114,37 +116,101 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
   };
 
   const geocodeLocation = async (locationName: string) => {
-    if (!window.google || !map) return;
+    if (!window.google || !map) {
+      console.warn('🗺️ Geocoding skipped: Google Maps not loaded or map not ready');
+      return;
+    }
+
+    if (!locationName || locationName.trim().length < 2) {
+      console.warn('🗺️ Geocoding skipped: Location name too short');
+      return;
+    }
 
     const geocoder = new window.google.maps.Geocoder();
 
+      console.log('🗺️ STARTING GEOCODING PROCESS');
+      console.log('📍 Input location:', locationName);
+      console.log('🌍 Map current center:', map.getCenter()?.toJSON());
+      setGeocodingError(null); // Clear any previous error
+      setGeocodedLocation(null); // Clear previous geocoded location
+
     try {
+      console.log('🔍 Calling Google Maps Geocoding API...');
+
       const response = await new Promise<any>((resolve, reject) => {
-        geocoder.geocode({ address: locationName }, (results: any, status: any) => {
-          if (status === 'OK' && results[0]) {
-            resolve(results[0]);
+        geocoder.geocode({
+          address: locationName,
+          // No country restrictions - truly global
+        }, (results: any, status: any) => {
+          console.log('📊 GOOGLE MAPS API RESPONSE:');
+          console.log('   Status:', status);
+          console.log('   Results count:', results ? results.length : 0);
+
+          if (status === 'OK' && results && results.length > 0) {
+            console.log('✅ GEOCODING SUCCESSFUL');
+            console.log('📍 Best match:', results[0].formatted_address);
+
+            // Log all results for debugging
+            results.slice(0, 3).forEach((result: any, index: number) => {
+              console.log(`   Option ${index + 1}: ${result.formatted_address}`);
+            });
+
+            resolve(results[0]); // Always use the first (best) result
           } else {
-            reject(new Error('Geocoding failed'));
+            console.error('❌ GEOCODING FAILED');
+            let errorMessage = `No location found for "${locationName}"`;
+
+            switch (status) {
+              case 'ZERO_RESULTS':
+                errorMessage = `No results found for "${locationName}". Try a more specific location name.`;
+                break;
+              case 'OVER_QUERY_LIMIT':
+                errorMessage = 'Too many location searches. Please wait and try again.';
+                break;
+              case 'REQUEST_DENIED':
+                errorMessage = 'Location search blocked. Please check your connection.';
+                break;
+              case 'INVALID_REQUEST':
+                errorMessage = `Invalid location format: "${locationName}". Try "City, Country".`;
+                break;
+              default:
+                errorMessage = `Location search failed: ${status}`;
+            }
+
+            console.error('❌ Error details:', errorMessage);
+            reject(new Error(errorMessage));
           }
         });
       });
 
+      // Extract coordinates from the geocoding result
       const lat = response.geometry.location.lat();
       const lng = response.geometry.location.lng();
+      const formattedAddress = response.formatted_address;
 
-      map.setCenter({ lat, lng });
+      console.log('📌 EXACT COORDINATES FOUND:');
+      console.log('   Latitude:', lat);
+      console.log('   Longitude:', lng);
+      console.log('   Full Address:', formattedAddress);
+
+      // CRITICAL: Always center map on the geocoded result - no fallbacks
+      console.log('🗺️ CENTERING MAP on geocoded location...');
+      map.panTo({ lat, lng });
       map.setZoom(12);
 
       // Remove existing marker
       if (marker) {
+        console.log('🗑️ Removing previous marker');
         marker.setMap(null);
       }
 
-      // Add new marker
+      // Add new marker at the EXACT geocoded location
+      console.log('📍 Adding marker at geocoded location');
       const newMarker = new window.google.maps.Marker({
         position: { lat, lng },
         map: map,
-        title: locationName,
+        title: formattedAddress,
+        animation: window.google.maps.Animation.DROP,
         icon: {
           url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
             <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -159,18 +225,36 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
       });
 
       setMarker(newMarker);
-      onLocationChange(locationName, { lat, lng });
+
+      // Set the geocoded location for UI display
+      setGeocodedLocation(formattedAddress);
+
+      // Update parent component with the EXACT geocoded result
+      console.log('📤 Updating parent component with geocoded data');
+      onLocationChange(formattedAddress, { lat, lng });
+
+      console.log('✅ GEOCODING PROCESS COMPLETE');
+      console.log('🎯 Final result:', { address: formattedAddress, coordinates: { lat, lng } });
+
     } catch (error) {
-      console.error('Geocoding error:', error);
+      console.error('💥 GEOCODING PROCESS FAILED');
+      console.error('Error:', error);
+
+      // Set error state for UI display
+      const errorMessage = error instanceof Error ? error.message : 'Location search failed';
+      setGeocodingError(errorMessage);
+
+      console.warn('⚠️ Map remains at current position due to geocoding failure');
+      // DO NOT change map position on error - let user see current state
     }
   };
 
   useEffect(() => {
-    if (isLoaded && location && location.length > 2 && !location.includes(',')) {
-      // Debounce geocoding
+    if (isLoaded && location && location.trim().length > 2) {
+      // Debounce geocoding to avoid too many API calls
       const timeoutId = setTimeout(() => {
-        geocodeLocation(location);
-      }, 1000);
+        geocodeLocation(location.trim());
+      }, 1500); // Increased debounce time
 
       return () => clearTimeout(timeoutId);
     }
@@ -185,7 +269,7 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
         <input
           ref={inputRef}
           type="text"
-          placeholder="Search for a city (e.g., Mumbai, India or Tokyo, Japan)"
+          placeholder="Search for any city worldwide (e.g., Paris, France or Sydney, Australia)"
           value={location}
           onChange={(e) => handleLocationInputChange(e.target.value)}
           className="w-full px-4 py-3 bg-black/50 border-2 border-cyan-400/50 rounded-lg text-green-400 placeholder-green-400/50 focus:outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,0.3)] font-mono text-lg transition-all duration-300"
@@ -218,10 +302,34 @@ export default function GoogleMap({ location, onLocationChange, className = '' }
             🗺️ Interactive Map
           </div>
         )}
+
+        {geocodedLocation && (
+          <div className="absolute top-2 right-2 bg-black/80 text-cyan-400 px-3 py-1 rounded-lg font-mono text-xs border border-cyan-400/30 max-w-xs">
+            <div className="font-semibold text-cyan-300">📍 Located:</div>
+            <div className="text-cyan-400/90 truncate" title={geocodedLocation}>
+              {geocodedLocation}
+            </div>
+          </div>
+        )}
       </div>
 
+      {geocodingError && (
+        <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-3">
+          <div className="flex items-center space-x-2">
+            <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <p className="text-red-400 font-mono text-sm font-semibold">Geocoding Error</p>
+              <p className="text-red-300/80 font-mono text-xs">{geocodingError}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="text-sm text-gray-400 font-mono">
-        💡 <strong>Tip:</strong> Type a city name and select from the dropdown, or the map will automatically center on your typed location.
+        💡 <strong>Tip:</strong> Type any city name from anywhere in the world (e.g., "Paris, France" or "Tokyo, Japan"), and the map will center on that exact location.
+        {geocodingError && ' Map showing global view due to geocoding error.'}
       </div>
     </div>
   );

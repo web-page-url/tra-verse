@@ -73,34 +73,75 @@ export default function TripPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('🚀 Trip page component mounted, fetching trip data...');
+
     const fetchTrip = async () => {
       try {
         // Await params in Next.js 15
+        console.log('🔍 Awaiting params resolution...');
         const resolvedParams = await params;
+        console.log('✅ Params resolved:', resolvedParams);
+
         if (!resolvedParams?.id) {
+          console.error('❌ Invalid trip ID:', resolvedParams?.id);
           setError('Invalid trip ID');
           setLoading(false);
           return;
         }
 
         const tripId = resolvedParams.id;
+        console.log('🎯 Trip ID to fetch:', tripId);
 
         // First, try to get trip data from localStorage
+        console.log('💾 Checking localStorage for trip data:', `trip_${tripId}`);
         const storedTrip = localStorage.getItem(`trip_${tripId}`);
         if (storedTrip) {
           const tripData = JSON.parse(storedTrip);
+          console.log('✅ TRIP DATA FOUND IN LOCALSTORAGE:');
+          console.log('=====================================');
+          console.log('Trip ID:', tripData.trip_id);
+          console.log('Summary:', tripData.summary);
+          console.log('Days:', tripData.days?.length || 0);
+          console.log('Estimated Cost:', tripData.estimated_cost);
+          console.log('Bookings:', tripData.bookings);
+          console.log('Full Trip Data:', JSON.stringify(tripData, null, 2));
+          console.log('=====================================');
+          console.log('🔄 Setting trip data to state...');
           setTrip(tripData);
+          console.log('✅ Trip data set successfully, loading complete');
           setLoading(false);
           return;
         }
+        console.log('❌ No trip data found in localStorage, fetching from API...');
 
         // If not in localStorage, try to fetch from API
+        console.log('🌐 Fetching trip data from API:', `/api/trips/${tripId}`);
         const response = await fetch(`/api/trips/${tripId}`);
         const result = await response.json();
 
+        console.log('📥 RAW API RESPONSE RECEIVED:');
+        console.log('=====================================');
+        console.log('Status:', response.status);
+        console.log('Success:', result.success);
+        console.log('Full Response:', JSON.stringify(result, null, 2));
+        console.log('=====================================');
+
         if (result.success) {
-          setTrip(result.data.itinerary || result.data);
+          const tripData = result.data.itinerary || result.data;
+          console.log('✅ TRIP DATA EXTRACTED:');
+          console.log('=====================================');
+          console.log('Trip ID:', tripData.trip_id);
+          console.log('Summary:', tripData.summary);
+          console.log('Days:', tripData.days?.length || 0);
+          console.log('Estimated Cost:', tripData.estimated_cost);
+          console.log('Bookings:', tripData.bookings);
+          console.log('Full Trip Data:', JSON.stringify(tripData, null, 2));
+          console.log('=====================================');
+          console.log('🔄 Setting API trip data to state...');
+          setTrip(tripData);
+          console.log('✅ API trip data set successfully, loading complete');
         } else {
+          console.error('❌ API returned error:', result.error);
           setError(result.error || 'Failed to load trip');
         }
       } catch (err) {
@@ -151,6 +192,14 @@ export default function TripPage() {
       </div>
     );
   }
+
+  // Log when rendering the trip page
+  console.log('🎨 Rendering trip page with data:', {
+    hasTrip: !!trip,
+    tripId: trip?.trip_id,
+    isLoading: loading,
+    hasError: !!error
+  });
 
   return (
     <div className="min-h-screen bg-black text-green-400 overflow-hidden relative font-mono">
@@ -221,6 +270,18 @@ export default function TripPage() {
         {/* Itinerary Map */}
         <div className="mb-8">
           <ItineraryMap trip={trip} />
+        </div>
+
+        {/* Detailed Itinerary Section */}
+        <div className="mb-8">
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold text-cyan-400 font-mono tracking-wider mb-2">
+              📋 DETAILED ITINERARY MATRIX
+            </h2>
+            <p className="text-green-400/80 font-mono text-lg">
+              Your complete trip breakdown with activities, timings, and locations
+            </p>
+          </div>
         </div>
 
         {/* Days */}

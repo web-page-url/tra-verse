@@ -435,7 +435,7 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-cyan-400 font-mono tracking-wider">
-            🗺️ ITINERARY MAP MATRIX
+            🗺️ VISUAL TRIP MAP
           </h2>
           <div className="text-sm text-cyan-400 border border-cyan-400/30 px-3 py-1 rounded bg-black/50 backdrop-blur-sm">
             <span className="animate-pulse">●</span> {validLocationsCount}/{locations.length} LOCATIONS
@@ -619,12 +619,15 @@ export default function ItineraryMap({ trip, className = '' }: ItineraryMapProps
         </div>
 
         <div className="mt-4 text-sm text-cyan-400/70 font-mono">
-          💡 <strong>Tip:</strong> Click on markers to see activities for each location.
+          💡 <strong>Map Tip:</strong> This visual map shows your trip locations with colored markers.
+          Click markers for quick activity previews.
           {selectedDay === null
-            ? ' Showing all locations from your trip.'
-            : ` Showing Day ${selectedDay} locations.`
+            ? ' Currently showing all locations from your trip.'
+            : ` Currently showing Day ${selectedDay} locations.`
           }
           {isAutoPlaying ? ' Auto-advancing every 10 seconds.' : ' Auto-play paused - use controls to navigate.'}
+          <br />
+          📋 <strong>Detailed itinerary with full descriptions appears below this map.</strong>
         </div>
       </div>
     </div>

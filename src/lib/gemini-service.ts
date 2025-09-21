@@ -3,7 +3,82 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { buildGeminiPrompt, buildRetryPrompt, FALLBACK_PROMPT } from './gemini-prompts';
 import { validateTripResponse } from './validation';
 import { TripRequest, TripResponse } from '@/types';
-import { searchRestaurants, searchAttractions } from './places-service';
+import { searchPlacesByMood } from './places-service';
+
+// Location validation function to ensure accuracy
+async function validateAndCorrectLocations(tripResponse: any, requestedLocation: string): Promise<any> {
+  console.log('🔍 Validating location accuracy for:', requestedLocation);
+
+  // Extract city name from requested location (e.g., "Manali, Himachal Pradesh" -> "Manali")
+  const cityName = requestedLocation.split(',')[0].trim();
+
+  // Extract all unique locations from the itinerary
+  const locations = new Set<string>();
+  tripResponse.days.forEach((day: any) => {
+    day.time_blocks.forEach((block: any) => {
+      if (block.location && block.location.trim()) {
+        locations.add(block.location.trim());
+      }
+    });
+  });
+
+  console.log('📍 Locations found in itinerary:', Array.from(locations));
+
+  // Basic checks for common issues
+  const correctedBlocks = tripResponse.days.map((day: any) => ({
+    ...day,
+    time_blocks: day.time_blocks.map((block: any) => {
+      let correctedLocation = block.location;
+
+      // Fix common generic names with more specific alternatives
+      if (block.location === 'Local Restaurant' || block.location === 'Restaurant') {
+        correctedLocation = `${cityName} Specialty Restaurant`;
+      }
+      if (block.location === 'Local Cafe' || block.location === 'Cafe') {
+        correctedLocation = `${cityName} Coffee House`;
+      }
+      if (block.location === 'Hotel Restaurant') {
+        correctedLocation = `${cityName} Hotel Dining`;
+      }
+      if (block.location === 'Popular Attraction' || block.location === 'Attraction') {
+        correctedLocation = `${cityName} Main Landmark`;
+      }
+
+      // CRITICAL: Ensure every location includes the city name for Google Maps accuracy
+      if (correctedLocation && !correctedLocation.includes(cityName)) {
+        // If the location doesn't contain the city name, append it
+        correctedLocation = `${correctedLocation}, ${cityName}`;
+        console.log(`📍 Added city name: "${block.location}" → "${correctedLocation}"`);
+      }
+
+      return {
+        ...block,
+        location: correctedLocation
+      };
+    })
+  }));
+
+  return {
+    ...tripResponse,
+    days: correctedBlocks
+  };
+}
+
+// Helper function to convert Google Places price_level to cost amount
+function getCostFromPriceLevel(priceLevel?: number): number | undefined {
+  if (priceLevel === undefined || priceLevel === null) return undefined;
+
+  // Google Places price_level: 0 = Free, 1 = Inexpensive, 2 = Moderate, 3 = Expensive, 4 = Very Expensive
+  const priceRanges = {
+    0: 0,      // Free
+    1: 25,     // Inexpensive ($0-25)
+    2: 50,     // Moderate ($25-75)
+    3: 100,    // Expensive ($75-125)
+    4: 200     // Very Expensive ($125+)
+  };
+
+  return priceRanges[priceLevel as keyof typeof priceRanges];
+}
 
 // Rate limiting helper
 class RateLimiter {
@@ -138,7 +213,7 @@ export async function generateItinerary(
 
       if (validation.success) {
         // Add metadata
-        const itinerary: TripResponse = {
+        let itinerary: TripResponse = {
           ...validation.data,
           metadata: {
             generated_at: new Date().toISOString(),
@@ -146,6 +221,11 @@ export async function generateItinerary(
             confidence_score: 95
           }
         };
+
+        // Validate and correct location accuracy
+        console.log('🔍 Running location validation and correction...');
+        itinerary = await validateAndCorrectLocations(itinerary, tripRequest.trip.location);
+        console.log('✅ Location validation completed');
 
         return itinerary;
       } else {
@@ -223,11 +303,18 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
   console.log('🎭 Generating enhanced mock itinerary with real places data...');
 
   try {
-    // Fetch real places data
-    const [restaurants, attractions] = await Promise.all([
-      searchRestaurants(trip.location, 8),
-      searchAttractions(trip.location, 8),
+    // Fetch real places data using Google Places API
+    const [foodPlaces, attractionPlaces] = await Promise.all([
+      searchPlacesByMood(trip.location, 'authentic', { timeOfDay: 'evening' }),
+      searchPlacesByMood(trip.location, 'cultural', { timeOfDay: 'afternoon' })
     ]);
+
+    const restaurants = foodPlaces.places.filter(place =>
+      place.types?.includes('restaurant') || place.types?.includes('cafe') || place.types?.includes('food')
+    );
+    const attractions = attractionPlaces.places.filter(place =>
+      place.types?.includes('tourist_attraction') || place.types?.includes('museum') || place.types?.includes('park')
+    );
 
     console.log(`✅ Found ${restaurants.length} restaurants and ${attractions.length} attractions for ${trip.location}`);
 
@@ -262,8 +349,8 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             title: "Breakfast & Local Exploration",
             type: "meal",
             location: breakfastRestaurant?.name || "Local Café",
-            description: breakfastRestaurant?.description || `Enjoy local breakfast and explore ${trip.location}`,
-            cost: breakfastRestaurant?.estimated_cost?.amount || Math.floor(Math.random() * 50) + 20,
+            description: `Enjoy local breakfast and explore ${trip.location}`,
+            cost: getCostFromPriceLevel(breakfastRestaurant?.price_level) || Math.floor(Math.random() * 50) + 20,
             currency: user.budget.currency,
             notes: breakfastRestaurant ? `⭐ ${breakfastRestaurant.rating} (${breakfastRestaurant.user_ratings_total} reviews)` : "Try local specialties!",
             place_id: breakfastRestaurant?.place_id,
@@ -276,14 +363,13 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             title: "Main Attraction",
             type: "activity",
             location: mainAttraction?.name || "Popular Attraction",
-            description: mainAttraction?.description || `Visit a popular attraction in ${trip.location}`,
-            cost: mainAttraction?.estimated_cost?.amount || Math.floor(Math.random() * 100) + 50,
+            description: `Visit a popular attraction in ${trip.location}`,
+            cost: getCostFromPriceLevel(mainAttraction?.price_level) || Math.floor(Math.random() * 100) + 50,
             currency: user.budget.currency,
             notes: mainAttraction ? `⭐ ${mainAttraction.rating} (${mainAttraction.user_ratings_total} reviews)` : "Don't forget your camera!",
             place_id: mainAttraction?.place_id,
             rating: mainAttraction?.rating,
             reviews_count: mainAttraction?.user_ratings_total,
-            tags: mainAttraction?.tags,
           },
           {
             start: "13:00",
@@ -291,8 +377,8 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             title: "Lunch",
             type: "meal",
             location: lunchRestaurant?.name || "Local Restaurant",
-            description: lunchRestaurant?.description || "Enjoy authentic local cuisine",
-            cost: lunchRestaurant?.estimated_cost?.amount || Math.floor(Math.random() * 40) + 30,
+            description: "Enjoy authentic local cuisine",
+            cost: getCostFromPriceLevel(lunchRestaurant?.price_level) || Math.floor(Math.random() * 40) + 30,
             currency: user.budget.currency,
             notes: lunchRestaurant ? `⭐ ${lunchRestaurant.rating} (${lunchRestaurant.user_ratings_total} reviews)` : "Try something new!",
             place_id: lunchRestaurant?.place_id,
@@ -305,14 +391,13 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             title: "Afternoon Activity",
             type: "activity",
             location: afternoonAttraction?.name || "Cultural Site",
-            description: afternoonAttraction?.description || `Experience the culture of ${trip.location}`,
-            cost: afternoonAttraction?.estimated_cost?.amount || Math.floor(Math.random() * 80) + 40,
+            description: `Experience the culture of ${trip.location}`,
+            cost: getCostFromPriceLevel(afternoonAttraction?.price_level) || Math.floor(Math.random() * 80) + 40,
             currency: user.budget.currency,
             notes: afternoonAttraction ? `⭐ ${afternoonAttraction.rating} (${afternoonAttraction.user_ratings_total} reviews)` : "Learn something new!",
             place_id: afternoonAttraction?.place_id,
             rating: afternoonAttraction?.rating,
             reviews_count: afternoonAttraction?.user_ratings_total,
-            tags: afternoonAttraction?.tags,
           },
           {
             start: "18:00",
@@ -320,8 +405,8 @@ async function generateMockItinerary(tripRequest: TripRequest): Promise<TripResp
             title: "Dinner",
             type: "meal",
             location: dinnerRestaurant?.name || "Restaurant",
-            description: dinnerRestaurant?.description || "Relaxing dinner with great views",
-            cost: dinnerRestaurant?.estimated_cost?.amount || Math.floor(Math.random() * 60) + 40,
+            description: "Relaxing dinner with great views",
+            cost: getCostFromPriceLevel(dinnerRestaurant?.price_level) || Math.floor(Math.random() * 60) + 40,
             currency: user.budget.currency,
             notes: dinnerRestaurant ? `⭐ ${dinnerRestaurant.rating} (${dinnerRestaurant.user_ratings_total} reviews)` : "Great way to end the day!",
             place_id: dinnerRestaurant?.place_id,

@@ -19,15 +19,29 @@ TRIP DETAILS:
 - Preferences: ${JSON.stringify(trip.preferences || {}, null, 2)}
 - Constraints: ${JSON.stringify(trip.constraints || {}, null, 2)}
 
+CRITICAL LOCATION ACCURACY REQUIREMENTS:
+- ALL location names MUST be REAL, EXISTING places in the specified destination (${trip.location})
+- NEVER use generic or made-up location names (e.g., no "Local Restaurant" or "Popular Cafe")
+- Research and use ACTUAL, VERIFIABLE business names and landmarks from ${trip.location}
+- For ${trip.location}, use REAL restaurants, hotels, attractions, and transport options that exist there
+- If uncertain about a specific place, use well-known, established locations in that area
+- NEVER suggest locations from different countries/cities than the requested destination
+- MOST IMPORTANT: EVERY location name MUST include the FULL ADDRESS with CITY NAME
+- Format: "Restaurant Name, City Name" or "Attraction Name, City Name"
+- Example: For "Delhi, India" - use "Connaught Place, Delhi", "India Gate, Delhi", "Karim's Restaurant, Delhi"
+- Example: For "Manali, Himachal Pradesh" - use "The Corner House, Manali", "Hadimba Temple, Manali", "Solang Valley, Manali"
+- This ensures Google Maps can accurately locate each place in the correct city
+
 INSTRUCTIONS:
 1. Create a detailed day-by-day itinerary with specific activities, meals, and logistics
 2. Include realistic time slots (e.g., 09:00-11:00 for activities)
 3. Consider the user's budget, interests, and travel style
 4. Include local transportation between activities
-5. Add meal recommendations with local cuisine
+5. Add meal recommendations with local cuisine - USE REAL RESTAURANT NAMES
 6. Include weather-appropriate activities
 7. Provide booking recommendations where applicable
 8. Ensure the itinerary is realistic and not overly packed
+9. ALL LOCATIONS MUST BE GEOGRAPHICALLY ACCURATE TO ${trip.location}
 
 REQUIRED OUTPUT FORMAT:
 Return a valid JSON object with this exact structure:
