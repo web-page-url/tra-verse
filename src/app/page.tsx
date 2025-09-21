@@ -80,15 +80,15 @@ export default function Home() {
           </div>
 
           <nav className="hidden md:flex space-x-6 lg:space-x-8 relative z-10">
-            <a href="#features" className="text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
+            <a href="#features" className="cursor-target text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
               [FEATURES]
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 group-hover:w-full transition-all duration-300 animate-pulse-glow"></span>
             </a>
-            <a href="#how-it-works" className="text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
+            <a href="#how-it-works" className="cursor-target text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
               [HOW_IT_WORKS]
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-magenta-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-delayed"></span>
             </a>
-            <a href="#pricing" className="text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
+            <a href="#pricing" className="cursor-target text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
               [PRICING]
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-slow"></span>
             </a>
@@ -148,7 +148,7 @@ export default function Home() {
                   <Link
                     href="/plan"
                     onClick={toggleMobileMenu}
-                    className="block w-full px-4 py-3 bg-black border-2 border-cyan-400 rounded-lg text-center text-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 font-mono text-sm"
+                    className="cursor-target block w-full px-4 py-3 bg-black border-2 border-cyan-400 rounded-lg text-center text-cyan-400 hover:bg-cyan-400/10 transition-all duration-300 font-mono text-sm"
                   >
                     [PLAN_MISSION]
                   </Link>
@@ -250,7 +250,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center items-center mb-16 sm:mb-20 px-4">
               <Link
                 href="/plan"
-                className="group relative px-8 py-4 sm:px-12 sm:py-6 bg-black border-2 border-cyan-400 rounded-lg text-lg sm:text-xl font-mono text-cyan-400 hover:bg-cyan-400/10 transition-all duration-500 transform hover:scale-105 shadow-lg shadow-cyan-400/20 hover:shadow-cyan-400/40 overflow-hidden w-full sm:w-auto"
+                className="cursor-target group relative px-8 py-4 sm:px-12 sm:py-6 bg-black border-2 border-cyan-400 rounded-lg text-lg sm:text-xl font-mono text-cyan-400 hover:bg-cyan-400/10 transition-all duration-500 transform hover:scale-105 shadow-lg shadow-cyan-400/20 hover:shadow-cyan-400/40 overflow-hidden w-full sm:w-auto"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/5 to-magenta-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <span className="relative z-10 flex items-center justify-center">
@@ -261,7 +261,7 @@ export default function Home() {
                 <div className="absolute inset-0 border border-cyan-400/50 animate-ping opacity-0 group-hover:opacity-100"></div>
               </Link>
 
-              <button className="group relative px-8 py-4 sm:px-12 sm:py-6 bg-black border-2 border-green-400 rounded-lg text-lg sm:text-xl font-mono text-green-400 hover:bg-green-400/10 transition-all duration-500 transform hover:scale-105 shadow-lg shadow-green-400/20 hover:shadow-green-400/40 w-full sm:w-auto">
+              <button className="cursor-target group relative px-8 py-4 sm:px-12 sm:py-6 bg-black border-2 border-green-400 rounded-lg text-lg sm:text-xl font-mono text-green-400 hover:bg-green-400/10 transition-all duration-500 transform hover:scale-105 shadow-lg shadow-green-400/20 hover:shadow-green-400/40 w-full sm:w-auto">
                 <span className="relative z-10 flex items-center justify-center">
                   <span className="mr-2 sm:mr-3 animate-pulse text-lg">▶</span>
                   <span className="tracking-wider text-sm sm:text-base">[WATCH_DEMO]</span>
@@ -438,7 +438,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link
                 href="/plan"
-                className="group relative px-12 py-6 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl text-xl font-bold text-white shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-300 overflow-hidden"
+                className="cursor-target group relative px-12 py-6 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-2xl text-xl font-bold text-white shadow-2xl hover:shadow-purple-500/25 transform hover:scale-105 transition-all duration-300 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center">
                   🌟 Start Planning Now

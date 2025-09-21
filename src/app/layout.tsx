@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import TargetCursor from "@/components/TargetCursor";
 
 // Structured Data for SEO
 const structuredData = {
@@ -190,6 +191,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <TargetCursor
+          spinDuration={2}
+          hideDefaultCursor={true}
+        />
       </body>
     </html>
   );
