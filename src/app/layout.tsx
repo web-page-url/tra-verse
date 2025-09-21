@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TargetCursor from "@/components/TargetCursor";
+import ScrollToTop from "@/components/ScrollToTop";
 
 // Structured Data for SEO
 const structuredData = {
@@ -195,6 +196,7 @@ export default function RootLayout({
           spinDuration={2}
           hideDefaultCursor={true}
         />
+        <ScrollToTop />
       </body>
     </html>
   );
