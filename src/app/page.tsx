@@ -88,8 +88,8 @@ export default function Home() {
               [HOW_IT_WORKS]
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-magenta-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-delayed"></span>
             </a>
-            <a href="#pricing" className="cursor-target text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
-              [PRICING]
+            <a href="#ready-to-explore" className="cursor-target text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-110 font-mono text-xs sm:text-sm tracking-wider relative group cursor-pointer">
+              Ready to Explore?
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-slow"></span>
             </a>
           </nav>
@@ -136,11 +136,11 @@ export default function Home() {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-magenta-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-delayed"></span>
                 </a>
                 <a
-                  href="#pricing"
+                  href="#ready-to-explore"
                   onClick={toggleMobileMenu}
                   className="block text-green-400 hover:text-cyan-400 transition-all duration-300 hover:scale-105 font-mono text-sm tracking-wider relative group cursor-pointer"
                 >
-                  [PRICING]
+                  Ready to Explore?
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-green-400 group-hover:w-full transition-all duration-300 animate-pulse-glow-slow"></span>
                 </a>
 
@@ -422,7 +422,7 @@ export default function Home() {
         </section>
 
         {/* Enhanced CTA Section */}
-        <section className="py-24 px-6 relative">
+        <section id="ready-to-explore" className="py-24 px-6 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/30 via-pink-900/30 to-blue-900/30"></div>
           <div className="max-w-4xl mx-auto text-center relative z-10">
             <div className="mb-8">
