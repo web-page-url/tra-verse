@@ -56,7 +56,7 @@ export default function TripBot({ isDark = false }: TripBotProps) {
 
     try {
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       const systemPrompt = `You are Tra Verse AI, an AI assistant for Tra Verse, a premium AI-powered travel planning platform.
 
